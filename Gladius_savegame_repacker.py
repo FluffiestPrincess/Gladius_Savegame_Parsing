@@ -5,11 +5,15 @@ import configparser
 import struct
 import zlib
 
-parser = argparse.ArgumentParser(description="Compress extracted files back into a playable Gladius saved game.")
-parser.add_argument("filename")
-args = parser.parse_args()
+testing = False
 
-file_in_name = os.path.abspath(args.filename)
+if testing:
+    file_in_name = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\unpacked saves\test.cfg"
+else:
+    parser = argparse.ArgumentParser(description="Compress extracted files back into a playable Gladius saved game.")
+    parser.add_argument("filename")
+    args = parser.parse_args()
+    file_in_name = os.path.abspath(args.filename)
 
 if file_in_name.lower().endswith(".cfg"):
     pass

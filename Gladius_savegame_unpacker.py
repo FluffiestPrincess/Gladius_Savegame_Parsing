@@ -3,20 +3,20 @@ import os
 import sys
 import configparser
 import zlib
+from mmap import ACCESS_READ
 import binarizer as b
-from collections import OrderedDict
 
 testing = False
 unpack_dir_name = "unpacked saves"
 
-fields = dict(version=b.STRING,
-              branch=b.STRING,
-              revision=b.STRING,
-              build=b.STRING,
-              steamuser=b.STRING,
-              turn=b.INT,
-              checksum=b.INT,
-              mod_count=b.INT)
+header_structure = dict(version=b.STRING,
+                        branch=b.STRING,
+                        revision=b.STRING,
+                        build=b.STRING,
+                        steamuser=b.STRING,
+                        turn=b.INT,
+                        checksum=b.INT,
+                        mod_count=b.INT)
 
 if testing:
     file_in_name = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\test.GladiusSave"
@@ -52,11 +52,11 @@ config.add_section("HEADER")
 config.add_section("MODS")
 header = config["HEADER"]
 
-with open(file_in_name, 'rb') as file:
-    data = b.BinReader(file.fileno(), 0)
+with open(file_in_name, 'r+b') as file:
+    data = b.BinReader(file.fileno(), 0, access=ACCESS_READ)
 
-for name in fields:
-    value = data.fpop(*fields[name])
+for name in header_structure:
+    value = data.fpop(*header_structure[name])
     header[name] = str(value)
 
 # Mod names are separated by null bytes
