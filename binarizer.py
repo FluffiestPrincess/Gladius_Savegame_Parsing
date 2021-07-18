@@ -5,6 +5,7 @@ Some utilities for reading mixed-format binary files.
 import struct
 import mmap
 import os
+import re
 from collections import OrderedDict
 
 
@@ -13,14 +14,15 @@ class DataFormat(object):
     A utility object for storing the values that BinReader look for when deciding how much data to read, and how to
     format it. Acts like an extremely budget iterable.
     """
-    def __init__(self, until, form=None, allow_zero_length=True):
+    def __init__(self, until, form=None, allow_zero_length=True, inclusive=True):
         self.until = until
         self.form = form
         self.allow_zero_length = allow_zero_length
+        self.inclusive = inclusive
 
     def __iter__(self):
         # Needed to support func(*DataType)
-        return (self.until, self.form, self.allow_zero_length).__iter__()
+        return (self.until, self.form, self.allow_zero_length, self.inclusive).__iter__()
 
 
 BYTE = DataFormat(1, bytes)
@@ -80,13 +82,23 @@ class BinReader(mmap.mmap):
         self.seek(len(sub), os.SEEK_CUR)
         return front
 
-    def fpop(self, until, form=None, allow_zero_length=True):
+    def read_until_re(self, pattern, inclusive=False):
+        match = pattern.search(self, pos=self.tell())
+        if match is None:
+            raise RuntimeError(f"Could not find requested pattern {pattern.pattern} in data.")
+        elif inclusive:
+            return self.read(match.end() - match.pos)
+        else:
+            return self.read(match.start() - match.pos)
+
+    def fpop(self, until, form=None, allow_zero_length=True, inclusive=False):
         """
         Get a value of the specified type from the current pointer position onwards, advancing the pointer in the
         process.
         :param until:
             If an integer, returns that many bytes of data.
             If a bytes object, returns everything up to the first occurence of that sequence of bytes.
+            If a regular expression compiled pattern, returns everything up to the first occurence of that pattern.
             If a DataType, uses the splitby and form values from that DataType.
         :param form:
             If a string, passes to struct.unpack.
@@ -94,7 +106,10 @@ class BinReader(mmap.mmap):
             If None, does nothing and just returns the result as-is.
             Note: If splitby is a DataType, form is ignored.
         :param allow_zero_length: If true, can return a zero-lenth result. If false, will respond to a zero-length
-        result by silently skipping forward the length of the separator and trying again.
+        result by silently skipping forward the length of the separator and trying again. Currently only used for
+        matching by bytes objects.
+        :param inclusive: Whether or not to return the contents of the regular expression match. Currently only used
+        for matching by regular expression.
         """
         if isinstance(until, bytes):
             # Split by separator
@@ -105,13 +120,16 @@ class BinReader(mmap.mmap):
         elif isinstance(until, int):
             # Split by length
             front = self.read(until)
+        elif isinstance(until, re.Pattern):
+            # Split by regular expression
+            front = self.read_until_re(until, inclusive)
         elif isinstance(until, DataFormat):
             # There's a good chance I'm just going to remove this option.
             # You can fake it with my_BinReader.fpop(*my_DataFormat)
             front = self.fpop(until.until, until.form, until.allow_zero_length)
             form = None
         else:
-            raise TypeError("Currently only supports splitting by 'bytes' and 'int' objects.")
+            raise TypeError("Currently only supports splitting by 'bytes', 'int', and 're.Pattern' objects.")
         return format_output(front, form)
 
     def get(self, until, form=None, allow_zero_length=False):
@@ -179,3 +197,4 @@ class BinReader(mmap.mmap):
             return OrderedDict(key_value_pairs)
         else:
             raise TypeError(f"fpop_structure does not know how to handle {type(structure)}")
+
