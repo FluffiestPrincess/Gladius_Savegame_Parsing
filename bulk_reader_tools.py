@@ -99,7 +99,8 @@ def is_weapon(path):
 
 
 header_structure = dict(
-    unk_bytes_1=b.DataFormat(9, bytes),
+    bin1=b.DataFormat(8, bytes),
+    achievements_enabled=b.BOOL,
     mods=[b.STRING],
     adaptive_turn_timer=b.BOOL,
     AI_controls_disconnected_players=b.BOOL,
@@ -114,7 +115,7 @@ header_structure = dict(
     imperial_ruins_density=b.UINT,
     jokaero_density=b.UINT,
     land_mass=b.UINT,
-    unk_bool_1=b.BOOL,  # Might be multiplayer or the "lord of skulls" setting.
+    multiplayer=b.BOOL,
     debug_panel_enabled=b.BOOL,  # Multiplayer only
     necron_tomb_density=b.UINT,
     webway_density=b.UINT,
@@ -133,8 +134,8 @@ header_structure = dict(
     turn_number=b.UINT,
     turn_timer=b.UINT,
     volcanic_region_density=b.UINT,
-    wire_weed_density=b.UINT,
-    unk_bytes_2=b.DataFormat(4, bytes)  # I have genuinely no idea
+    wildlife_density=b.UINT,
+    wire_weed_density=b.UINT
 )
 
 climates_structure = b.DataFormat(48, bytes)  # Structure of climate data is currently kind of impenetrable
