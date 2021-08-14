@@ -18,17 +18,17 @@ def getfile(file=None):
     return data
 
 
-def events_error(_):
-    raise NotImplementedError("This save file contains an Events section, which I unfortunately do not yet know how "
-                              "to parse.")
-
-
 # To make it slightly easier to get the lengths of structures.
 def trylen(x):
     try:
         return len(x)
     except TypeError:
         return 1
+
+
+def events_error(_):
+    raise NotImplementedError("This save file contains an Events section, which I unfortunately do not yet know how "
+                              "to parse.")
 
 
 #  A bit of a hack; this is a valid DataFormat, but if it's ever used it returns NotImplementedError.
