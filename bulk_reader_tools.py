@@ -327,7 +327,8 @@ building_group2_structure = dict(
 building_structure = dict(
     id=b.UINT,
     type=b.STRING,
-    bin1=b.DataFormat(2, bytes)
+    bool1=b.BOOL,
+    finished=b.BOOL  # Is the building actually finished, or just under construction?
 )
 
 building2_structure = dict(
