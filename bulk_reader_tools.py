@@ -273,6 +273,10 @@ tile2_structure = dict(
     building_ids=[b.INT]
 )
 
+tile4_structure = dict(
+    unknown=b.INT
+)
+
 # Done apart from two possibly-boolean values that I've only ever seen with one value
 feature_structure = dict(
     id=b.UINT,
@@ -368,6 +372,10 @@ unit2_structure = dict(
     F=b.DWORD,
     numbers5=[b.INT],
     numbers6=[b.INT]
+)
+
+unit4_structure = dict(
+    unknown=b.INT
 )
 
 weapon_structure = dict(
@@ -592,4 +600,12 @@ master2_structure = dict(
     units=[unit2_structure, None],
     weapons=[weapon2_structure, None],
     magic_items=[[b.INT], None]
+)
+
+suborder_structure = (b.INT, b.INT, b.INT, b.INT, b.INT)
+
+order_structure = dict(
+    action=b.INT,
+    mystery=(b.INT, b.INT, b.INT, b.INT),
+    suborders=[suborder_structure]
 )
