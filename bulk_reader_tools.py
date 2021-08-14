@@ -538,6 +538,39 @@ notification_types = dict(
     )
 )
 
+# Only relevant for parsing files with quest data in them
+notification2_prefix_lengths = dict(
+    CityGrown=7,
+    FactionDefeated=None,
+    FactionDiscovered=None,
+    FeatureExplored=7,
+    FeatureTypeDiscovered=7,
+    LordOfSkullsAppeared=None,
+    LordOfSkullsDisppeared=None,
+    PlayerLost=None,
+    PlayerWon=None,
+    PlayerWonElimination=None,
+    PlayerWonQuest=None,
+    ProductionCompleted=7,
+    QuestAdded=None,
+    QuestCompleted=None,
+    QuestUpdated=None,
+    RegionDiscovered=None,
+    ResearchCompleted=7,
+    ResourcesGainedTile=15,
+    ResourcesGainedUnit=15,
+    TileAcquired=7,
+    TileCaptured=15,
+    TileCleared=7,
+    UnitAttacked=31,
+    UnitCaptured=11,
+    UnitKilled=31,
+    UnitGainedTrait=7,
+    UnitTransformed=7,
+    UnitTypeDiscovered=8,
+    UnitUsedActionOn=11
+)
+
 master_structure = dict(
     world_params=world_params_structure,
     climates=[climate_structure, b.SCHAR],  # why is this a SCHAR when everything else is UINTs?
@@ -554,39 +587,6 @@ master_structure = dict(
     weapons=[weapon_structure],
     magic_items=[magic_item_structure],
     quests=[quest_structure]
-)
-
-# Only relevant for parsing files with quest data in them
-notification2_prefix_lengths = dict(
-    CityGrown=0,
-    FactionDefeated=0,
-    FactionDiscovered=None,
-    FeatureExplored=0,
-    FeatureTypeDiscovered=7,
-    LordOfSkullsAppeared=0,
-    LordOfSkullsDisppeared=0,
-    PlayerLost=0,
-    PlayerWon=0,
-    PlayerWonElimination=0,
-    PlayerWonQuest=0,
-    ProductionCompleted=0,
-    QuestAdded=0,
-    QuestCompleted=0,
-    QuestUpdated=0,
-    RegionDiscovered=None,
-    ResearchCompleted=0,
-    ResourcesGainedTile=0,
-    ResourcesGainedUnit=0,
-    TileAcquired=0,
-    TileCaptured=0,
-    TileCleared=0,
-    UnitAttacked=0,
-    UnitCaptured=0,
-    UnitKilled=0,
-    UnitGainedTrait=0,
-    UnitTransformed=0,
-    UnitTypeDiscovered=8,
-    UnitUsedActionOn=0
 )
 
 master2_structure = dict(
