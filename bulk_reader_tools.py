@@ -306,6 +306,16 @@ city_structure = dict(
     bin2=b.DataFormat(9, bytes)
 )
 
+city2_structure = dict(
+    numbers1=[b.INT],
+    productions=[{"name": b.STRING, "id": b.INT}],
+    bin3=b.DataFormat(8, bytes),
+    buildings=[b.INT],
+    building_groups=[b.INT],
+    tiles_occupied=[b.INT],
+    bin4=[b.DWORD, 4]
+)
+
 building_group_structure = dict(
     id=b.UINT,
     bin=b.DataFormat(26, bytes),
