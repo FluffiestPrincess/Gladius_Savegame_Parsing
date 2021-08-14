@@ -410,6 +410,14 @@ quest_structure = dict(
     bin1=quest_binary  # Variable length
 )
 
+# No analysis needed
+notification_base_structure = dict(
+    type=b.STRING,
+    number=b.UINT,
+    player=b.UINT,
+    bin1=b.DataFormat(3, bytes)
+)
+
 # I *think* bin2 is the tile the notification is tied to.
 # Again, this is of basically no importance because there are no notifications at game start.
 notification_types = dict(
@@ -506,7 +514,11 @@ notification_types = dict(
         bin2=b.DataFormat(4, bytes),
         unit=b.STRING
     ),
-    UnitTransformed=None,  # I'm pretty sure this is CSM DLC only, which I don't have
+    UnitTransformed=dict(
+        started_as=b.STRING,
+        unknown=b.DataFormat(4, bytes),
+        bin2=b.DataFormat(4, bytes)
+    ),
     UnitTypeDiscovered=dict(
         bool=b.BOOL,
         unit=b.STRING,
