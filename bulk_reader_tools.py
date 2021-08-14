@@ -342,11 +342,37 @@ building2_structure = dict(
 
 unit_structure = dict(
     id=b.UINT,
-    bin1=b.DataFormat(26, bytes),
+    not_artefact=b.BOOL,  # I'm not 100% on this, but I've only seen it be 00 for Artefacts and 01 otherwise
+    bin1=b.DataFormat(25, bytes),
     type=b.STRING,
-    bin2=b.DataFormat(50, bytes),
-    name=b.STRING,
-    bin3=b.DataFormat(11, bytes)
+    action_points=b.DOUBLE,  # Guess
+    engaged=b.BOOL,  # Guess. Seems to relate to whether a unit is within 1 tile of an enemy
+    experience=b.DOUBLE,
+    health=b.DOUBLE,
+    double3=b.DOUBLE,
+    morale=b.DOUBLE,
+    bin3=b.DataFormat(1, bytes),  # My guess is that this is whether or not a unit is able to make a melee attack
+    movement_remaining=b.DOUBLE,
+    veteran_title=b.STRING,
+    bin4=b.DataFormat(4, bytes),
+    level=b.INT,
+    bin5=b.DataFormat(3, bytes)
+)
+
+unit2_structure = dict(
+    actions=[b.INT],
+    traits=[{"name": b.STRING, "id": b.INT}],
+    bin6=b.DataFormat(16, bytes),
+    int1=b.INT,
+    bin7=b.DataFormat(4, bytes),
+    numbers2=[b.INT],
+    threat_tile=b.INT,  # Appears to correlate with the tile occupied by an enemy unit when units are in melee range?
+    bin8=b.DataFormat(12, bytes),
+    numbers3=[b.INT],
+    numbers4=[b.INT],
+    F=b.DWORD,
+    numbers5=[b.INT],
+    numbers6=[b.INT]
 )
 
 weapon_structure = dict(
