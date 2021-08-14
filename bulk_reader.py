@@ -81,6 +81,31 @@ master["magic_items2"] = data.fpop_structure([[b.INT], len(master["magic_items"]
 
 locations["quests2"] = data.tell()
 
+if len(master["quests"]) != 0:
+    # Need to deserialize the quests section, which sucks.
+    # I'm not going to try very hard since there's no need to write quests.
+    first_notif_type = master["notifications"][0]["type"]
+    first_notif_prefix = bytes(str(notification2_prefix_lengths[first_notif_type]), "UTF-8")
+    first_notif_re = b'[\x00-\x01]{' + first_notif_prefix + rb'}\w{5}'
+    quest2_binary = b.DataFormat(re.compile(first_notif_re), bytes, inclusive=False)
+    master["quests2"] = data.fpop_structure(quest2_binary)
+else:
+    master["quests2"] = b''
+
+locations["notifications2"] = data.tell()
+master["notifications2"] = []
+
+for notif in master["notifications"]:
+    notif2 = dict(bin1=data.fpop(7, bytes))
+    extra = data.fpop_structure(notification_types[notif["type"]])
+    notif2.update(extra)
+    master["notifications2"].append(notif2)
+
+# ================================ #
+# ==== Third pass starts here ==== #
+# ================================ #
+
+# traits, players, tiles, features, cities,
 # buildingGroups, buildings, units, weapons, items, quests, notifications
 
 print("Position in file as of end of reading:")
