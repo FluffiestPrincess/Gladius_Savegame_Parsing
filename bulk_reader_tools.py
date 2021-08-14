@@ -6,7 +6,7 @@ import binarizer as b
 
 def getfile(file=None):
     if file is None:
-        parser = argparse.ArgumentParser(description="Take a clumsy shot at reading the bulk files.")
+        parser = argparse.ArgumentParser(description="Deserializes the bulk files into native Python objects.")
         parser.add_argument("filename")
         args = parser.parse_args()
         file = os.path.abspath(args.filename)
@@ -94,7 +94,7 @@ def is_weapon(path):
 
 
 # Analysis basically done, except the weird initial bytes.
-header_structure = dict(
+world_params_structure = dict(
     bin1=b.DataFormat(8, bytes),
     achievements_enabled=b.BOOL,
     mods=[b.STRING],
@@ -539,7 +539,7 @@ notification_types = dict(
 )
 
 master_structure = dict(
-    header=header_structure,
+    world_params=world_params_structure,
     climates=[climate_structure, b.SCHAR],  # why is this a SCHAR when everything else is UINTs?
     events=[events_notimplemented_structure],
     actions=[action_structure],
