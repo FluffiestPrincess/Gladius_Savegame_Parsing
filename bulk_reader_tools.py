@@ -144,7 +144,7 @@ climate_structure = dict(
     volcanic=b.DOUBLE,
 )
 
-# First half is basically done; second half TODO
+# Basically done
 action_structure = dict(
     path=b.NZ_STRING,
     id1=b.UINT,
@@ -155,16 +155,15 @@ action_structure = dict(
     item_id=b.INT  # -1 if not associated with an item
 )
 
-# TODO
 action2_normal_structure = dict(
-    bin1=[b.DWORD],
-    bin2=b.DWORD,
-    item_id=b.INT
+    linked_traits=[b.INT],
+    bin1=b.DWORD,  # Only ever 00 00 00 00
+    item_id_2=b.INT  # Beats me why this is listed twice
 )
 
 action2_weapon_structure = dict(
-    bin1=[b.DWORD],
-    bin2=b.DWORD,
+    linked_traits=[b.INT],
+    bin1=b.DWORD,  # Only ever 00 00 00 00
     item_id=b.INT,
     weapon_id=b.INT
 )
