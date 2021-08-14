@@ -1,7 +1,6 @@
 import argparse
 import os
 import re
-import struct
 import binarizer as b
 
 
@@ -33,10 +32,6 @@ def events_error(_):
 
 #  A bit of a hack; this is a valid DataFormat, but if it's ever used it returns NotImplementedError.
 events_notimplemented_structure = b.DataFormat(0, events_error)
-
-# The DataFormat to get a UINT and add one.
-# Only seems to be used in one place so far
-uint_plus_one = b.DataFormat(4, lambda x: struct.unpack('I', x)[0] + 1)
 
 # Actions that are also weapons seem to work differently - they have an extra byte of data at the end.
 # Because of this, we need a mechanism to identify them.
