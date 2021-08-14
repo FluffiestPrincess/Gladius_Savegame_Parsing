@@ -382,6 +382,13 @@ weapon_structure = dict(
     int1=b.INT
 )
 
+weapon2_structure = dict(
+    traits=[{"name": b.STRING, "id": b.INT}],
+    F=b.DWORD,
+    number=b.INT
+)
+
+# No analysis needed
 magic_item_structure = dict(
     id=b.DataFormat(4, bytes),
     name=b.STRING
@@ -391,10 +398,8 @@ magic_item_structure = dict(
 # OR four characters (the length marker INT) followed by 4+ letters followed by a null byte (start of the
 # notifications section)
 # This might fail if the Lord of Skulls quest is active
-# Again, we don't need to worry too much - no quests are active at game start.
-# TODO work out how many quests are associated with each player
-# TODO ideally also find a better way to get the right amount of data
-# TODO don't actually sweat this; it's not important for the true objective
+# ideally I would find a better way to get the right amount of data
+# However, I don't need to worry too much - no quests are active at game start.
 quest_re = rb'(Factions/|....[a-z,A-Z]{4,}\x00)'
 quest_binary = b.DataFormat(re.compile(quest_re), bytes, inclusive=False)
 
