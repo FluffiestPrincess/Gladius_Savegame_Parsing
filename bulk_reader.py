@@ -175,3 +175,5 @@ for notif in master["notifications"]:
 if testing:
     print("Position in file as of end of reading:")
     print(data.tell())
+if not testing:
+    data.close()
