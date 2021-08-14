@@ -15,6 +15,13 @@ master = {}
 locations = {}
 data = getfile(input_path)
 
+# ================================ #
+# ==== First pass starts here ==== #
+# ================================ #
+
+# world parameters, climates, events, actions, traits, players, tiles, features, cities,
+# buildingGroups, buildings, units, weapons, items, quests, notifications
+
 for key in master_structure:
     locations[key] = data.tell()
     master[key] = data.fpop_structure(master_structure[key])
@@ -35,10 +42,11 @@ for n in range(notification_count):
 # ==== Second pass starts here ==== #
 # ================================= #
 
-# current player, actions, traits, players, tiles, features, cities,
+# current player id, actions, traits, players, tiles, features, cities,
 # buildingGroups, buildings, units, weapons, items, quests, notifications
 
 master["current_player"] = data.fpop(b.UINT)
+
 locations["actions2"] = data.tell()
 master["actions2"] = []
 for action in master["actions"]:
@@ -105,8 +113,7 @@ for notif in master["notifications"]:
 # ==== Third pass starts here ==== #
 # ================================ #
 
-# traits, players, tiles, features, cities,
-# buildingGroups, buildings, units, weapons, items, quests, notifications
+# traits, then order data for players, cities, and buildingGroups, then notifications
 
 locations["traits3"] = data.tell()
 master["traits3"] = data.fpop_structure([trait3_structure, len(master["traits"])])
