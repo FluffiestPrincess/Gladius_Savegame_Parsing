@@ -108,5 +108,28 @@ for notif in master["notifications"]:
 # traits, players, tiles, features, cities,
 # buildingGroups, buildings, units, weapons, items, quests, notifications
 
-print("Position in file as of end of reading:")
-print(data.tell())
+locations["traits3"] = data.tell()
+master["traits3"] = data.fpop_structure([trait3_structure, len(master["traits"])])
+
+# Next fat blob of binary data...
+# Is probably not players
+# Is too short to be tiles or features
+# Can't be cities, building groups, buildings, items or quests because it appears even on a new game
+# Is probably not notifications because the section after it looks like notifications
+# On a map with almost everything killed off, it's very short
+# Therefore is probably units or weapons
+# But I'm not sure it shrank *enough*? So it could be player-related data.
+
+# Seems to include data for units, cities, and players, which is frankly going to be horrible to work with.
+
+locations["mystery_unit_data"] = data.tell()
+
+
+
+
+
+
+    
+if testing:
+    print("Position in file as of end of reading:")
+    print(data.tell())
