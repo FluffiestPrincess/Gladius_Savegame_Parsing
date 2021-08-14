@@ -333,7 +333,11 @@ building_group2_structure = dict(
 building_structure = dict(
     id=b.UINT,
     type=b.STRING,
-    bin=b.DataFormat(2, bytes)
+    bin1=b.DataFormat(2, bytes)
+)
+
+building2_structure = dict(
+    bin2=b.DataFormat(20, bytes)
 )
 
 unit_structure = dict(
