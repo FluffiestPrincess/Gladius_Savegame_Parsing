@@ -6,7 +6,27 @@ import struct
 import mmap
 import os
 import re
-from collections import OrderedDict
+import json
+
+
+def pretty_hex(b):
+    return b.hex(" ").upper()
+
+
+def pretty_binary(b):
+    binary = [bin(char) for char in b]  # Convert bytes to binary
+    binary = [string.replace("0b", "") for string in binary]  # Remove binary format specifier
+    binary = ['{:0>8}'.format(string) for string in binary]  # Pad to 8 digits per block
+    binary = " ".join(binary)
+    return binary
+
+
+class BytesJSONEncoder(json.JSONEncoder):
+    """
+    A JSON encoder that supports writing bytes object as strings like '10 00 DE AD BE EF'.
+    """
+    def default(self, o):
+        return pretty_hex(o)
 
 
 class DataFormat(object):
