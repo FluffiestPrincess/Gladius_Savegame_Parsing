@@ -118,25 +118,60 @@ for notif in master["notifications"]:
 locations["traits3"] = data.tell()
 master["traits3"] = data.fpop_structure([trait3_structure, len(master["traits"])])
 
-# Next fat blob of binary data...
-# Is probably not players
-# Is too short to be tiles or features
-# Can't be cities, building groups, buildings, items or quests because it appears even on a new game
-# Is probably not notifications because the section after it looks like notifications
-# On a map with almost everything killed off, it's very short
-# Therefore is probably units or weapons
-# But I'm not sure it shrank *enough*? So it could be player-related data.
+# Pretty sure this is orders - i.e. a list of what everything is actually doing at any given time.
+orders_length = len(master["players"]) \
+                + len(master["cities"]) \
+                + len(master["building_groups"]) \
+                + len(master["units"])
 
-# Seems to include data for units, cities, and players, which is frankly going to be horrible to work with.
+locations["orders"] = data.tell()
+master["orders"] = data.fpop_structure([order_structure, orders_length])
 
-locations["mystery_unit_data"] = data.tell()
+locations["notifications3"] = data.tell()
+master["notifications3"] = []
 
+for notif in master["notifications"]:
+    notif3 = dict(bin1=data.fpop(7, bytes))
+    extra = data.fpop_structure(notification_types[notif["type"]])
+    notif3.update(extra)
+    master["notifications3"].append(notif3)
 
+# ================================= #
+# ==== Fourth pass starts here ==== #
+# ================================= #
 
+# Tiles, units, notifications again
 
+locations["tiles4"] = data.tell()
+master["tiles4"] = data.fpop_structure([tile4_structure, len(master["tiles"])])
 
+locations["units4"] = data.tell()
+master["units4"] = data.fpop_structure([unit4_structure, len(master["units"])])
 
-    
+locations["notifications4"] = data.tell()
+master["notifications4"] = []
+
+for notif in master["notifications"]:
+    notif4 = dict(bin1=data.fpop(7, bytes))
+    extra = data.fpop_structure(notification_types[notif["type"]])
+    notif4.update(extra)
+    master["notifications4"].append(notif4)
+
+# ================================ #
+# ==== Fifth pass starts here ==== #
+# ================================ #
+
+# Seems to be just notifications again
+
+locations["notifications5"] = data.tell()
+master["notifications5"] = []
+
+for notif in master["notifications"]:
+    notif5 = dict(bin1=data.fpop(7, bytes))
+    extra = data.fpop_structure(notification_types[notif["type"]])
+    notif5.update(extra)
+    master["notifications5"].append(notif5)
+
 if testing:
     print("Position in file as of end of reading:")
     print(data.tell())
