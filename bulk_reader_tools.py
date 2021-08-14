@@ -282,12 +282,21 @@ tile2_structure = dict(
 # Done apart from two possibly-boolean values that I've only ever seen with one value
 feature_structure = dict(
     id=b.UINT,
-    mystery_int=b.INT,
-    bin1=b.DataFormat(15, bytes),
+    bin1=b.BYTE,  # Possibly a boolean
+    duration=b.DOUBLE,  # Used for temporary orkoid fungus
+    cooldown=b.DOUBLE,  # Used for skull altars
+    visited=b.BOOL,  # Used for ruins, skull altars, etc.
+    bin3=b.BYTE,  # Possibly a boolean
     feature=b.STRING
 )
 
-# Note, at game start there are no cities or buildings, so analysis of this section isn't that important.
+feature2_structure = dict(
+    traits=[(b.STRING, b.INT)],
+    owner=b.INT,  # Player ID; will be the ID of the neutral AI controller for most features.
+    tile_id=b.INT,
+)
+
+# At game start there are no cities or buildings, so analysis of these sections aren't that important.
 city_structure = dict(
     id=b.UINT,
     bin1=b.DataFormat(26, bytes),
