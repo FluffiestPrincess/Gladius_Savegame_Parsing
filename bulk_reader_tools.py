@@ -138,7 +138,15 @@ header_structure = dict(
     wire_weed_density=b.UINT
 )
 
-climates_structure = b.DataFormat(48, bytes)  # Structure of climate data is currently kind of impenetrable
+# Really struggling to analyze coordinates
+climate_structure = dict(
+    unknown=b.DataFormat(8, bytes),  # Pretty intractable. Possibly two FLOATs, but doesn't correspond to tile coords
+    arctic=b.DOUBLE,
+    desert=b.DOUBLE,
+    unknown_climate=b.DOUBLE,  # Probably unused
+    jungle=b.DOUBLE,
+    volcanic=b.DOUBLE,
+)
 
 actions_structure = dict(
     path=b.NZ_STRING,
@@ -399,7 +407,7 @@ action_weapon_structure = dict(
 
 master_structure = dict(
     header=header_structure,
-    climates=[climates_structure, b.SCHAR],  # why is this a SCHAR when everything else is UINTs?
+    climates=[climate_structure, b.SCHAR],  # why is this a SCHAR when everything else is UINTs?
     events=[events_notimplemented_structure],
     actions=[actions_structure],
     traits=[trait_structure],
