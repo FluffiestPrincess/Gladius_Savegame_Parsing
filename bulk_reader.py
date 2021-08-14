@@ -35,6 +35,9 @@ for n in range(notification_count):
 # ==== Second pass starts here ==== #
 # ================================= #
 
+# current player, actions, traits, players, tiles, features, cities,
+# buildingGroups, buildings, units, weapons, items, quests, notifications
+
 master["current_player"] = data.fpop(b.UINT)
 locations["actions2"] = data.tell()
 master["actions2"] = []
@@ -47,51 +50,13 @@ for action in master["actions"]:
         master["actions2"].append(my_data)
 
 locations["traits2"] = data.tell()
-master["traits2"] = data.fpop_structure([b.QWORD, len(master["traits"])])
-
-mystery_quest_data_re = rb'([\x10-\xff].\x00\x00|[\x01-\xff][\x01-\xff]\x00\x00)'
-mystery_quest_data_binary = b.DataFormat(re.compile(mystery_quest_data_re), bytes, inclusive=False)
-
-player2_structure = dict(
-    numbers1=[b.INT],
-    global_effects=[{"name": b.STRING, "number": b.INT}],
-    F=b.DWORD,
-    player_id_again=b.UINT,
-    quests_in_progress=[b.UINT],
-    quests_completed=[b.UINT],
-    blank1=b.DWORD,
-    # mystery_quest_data=mystery_quest_data_binary,
-    # TODO I honestly think this might be
-    # {"current": [b.INT], "completed": [b.INT], "unknown": b.DWORD}
-    bin1=b.DWORD,
-    fog_data=[b.UINT],
-    numbers2=[b.INT],
-    numbers3=[b.INT],
-    numbers4=[b.INT],
-    known_enemies=[b.UINT],
-    numbers5=[b.INT],
-    numbers6=[b.INT]
-)
+master["traits2"] = data.fpop_structure([trait2_structure, len(master["traits"])])
 
 locations["players2"] = data.tell()
 master["players2"] = data.fpop_structure([player2_structure, len(master["players"])])
 
-tile2_structure = dict(
-    wurds=[(b.STRING, b.INT)],
-    eff=b.DWORD,
-    numbaz=[b.INT],
-    sumtimez_eff=b.QWORD,
-    mor_numbaz=[b.INT]
-)
-
 locations["tiles2"] = data.tell()
 master["tiles2"] = data.fpop_structure([tile2_structure, len(master["tiles"])])
-
-feature2_structure = dict(
-    wurds=[(b.STRING, b.INT)],
-    four=b.INT,
-    numba=b.INT,
-)
 
 locations["features2"] = data.tell()
 master["features2"] = data.fpop_structure([feature2_structure, len(master["features"])])
