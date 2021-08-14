@@ -174,10 +174,26 @@ action2_weapon_structure = dict(
     weapon_id=b.INT
 )
 
+# Mostly done
 trait_structure = dict(
     id=b.INT,
-    names=[b.NZ_STRING, uint_plus_one],
-    bin=b.DataFormat(23, bytes)
+    prerequisites=[b.NZ_STRING],  # Guess
+    name=b.STRING,
+    duration=b.DOUBLE,  # Confirmed
+    turns_active=b.INT,  # You'd think this could be calculated from the current turn and the start turn, but guess not
+    level=b.INT,  # Guess
+    maxlevel=b.INT,  # Guess
+    Enslaved=b.BOOL,  # Only used by the Enslaved status, as far as I can tell
+    start_turn=b.USHORT  # Confirmed, although I don't know why it's a USHORT
+)
+
+trait2_structure = dict(
+    player=b.INT,
+    origin_unit=b.INT  # for traits that apply to one entity but are caused by another
+)
+
+trait3_structure = dict(
+    linked_action=b.INT
 )
 
 player_structure = dict(
