@@ -38,10 +38,10 @@ locations["actions2"] = data.tell()
 master["actions2"] = []
 for action in master["actions"]:
     if is_weapon(action["path"]):
-        my_data = data.fpop_structure(action_weapon_structure)
+        my_data = data.fpop_structure(action2_weapon_structure)
         master["actions2"].append(my_data)
     else:
-        my_data = data.fpop_structure(action_normal_structure)
+        my_data = data.fpop_structure(action2_normal_structure)
         master["actions2"].append(my_data)
 
 locations["traits2"] = data.tell()

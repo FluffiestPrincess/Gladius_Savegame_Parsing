@@ -98,6 +98,7 @@ def is_weapon(path):
         return False
 
 
+# Analysis basically done, except the weird initial bytes.
 header_structure = dict(
     bin1=b.DataFormat(8, bytes),
     achievements_enabled=b.BOOL,
@@ -148,9 +149,29 @@ climate_structure = dict(
     volcanic=b.DOUBLE,
 )
 
-actions_structure = dict(
+# First half is basically done; second half TODO
+action_structure = dict(
     path=b.NZ_STRING,
-    bin=b.DataFormat(25, bytes)
+    id1=b.UINT,
+    id2=b.UINT,  # Always seems to be the same as id1
+    cooldown=b.DOUBLE,  # Confirmed
+    not_hold_fire=b.BOOL,  # Guess. Always seems to be 0 for HoldFire and 1 for everything else.
+    level=b.UINT,  # Guess
+    item_id=b.INT  # -1 if not associated with an item
+)
+
+# TODO
+action2_normal_structure = dict(
+    bin1=[b.DWORD],
+    bin2=b.DWORD,
+    item_id=b.INT
+)
+
+action2_weapon_structure = dict(
+    bin1=[b.DWORD],
+    bin2=b.DWORD,
+    item_id=b.INT,
+    weapon_id=b.INT
 )
 
 trait_structure = dict(
@@ -392,24 +413,11 @@ notification_types = dict(
     )
 )
 
-action_normal_structure = dict(
-    bin1=[b.DWORD],
-    bin2=b.DWORD,
-    item_id=b.INT
-)
-
-action_weapon_structure = dict(
-    bin1=[b.DWORD],
-    bin2=b.DWORD,
-    item_id=b.INT,
-    weapon_id=b.INT
-)
-
 master_structure = dict(
     header=header_structure,
     climates=[climate_structure, b.SCHAR],  # why is this a SCHAR when everything else is UINTs?
     events=[events_notimplemented_structure],
-    actions=[actions_structure],
+    actions=[action_structure],
     traits=[trait_structure],
     players=[player_structure],
     tiles=[tile_structure],
