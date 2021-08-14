@@ -256,16 +256,30 @@ player2_structure = dict(
     numbers6=[b.INT]
 )
 
-# TODO: These are probably quite amenable to analysis - and it will need doing!
+# Basically done, apart from bin1, which I have a few hints about, and F which is impenetrable
 tile_structure = dict(
     id=b.UINT,
-    mystery_int=b.INT,
-    bin1=b.DataFormat(10, bytes),
+    bin1=b.BYTE,  # Normally 1. 0 when under artefacts. I think this might be a flags field though.
+    buildings_count=b.UCHAR,  # Includes buildings currently under construction
+    x=b.FLOAT,
+    y=b.FLOAT,
+    height=b.UINT,
     region_name=b.STRING,
-    bin2=b.DataFormat(8, bytes),
+    river_in=b.INT,
+    river_out=b.INT,
     quest_tag=b.STRING
 )
 
+tile2_structure = dict(
+    effects=[(b.STRING, b.INT)],
+    F=b.DataFormat(4, bytes),  # I have never seen this be anything other than FF FF FF FF
+    features=[b.INT],
+    city_feature_id=b.INT,  # The ID of the city feature in the Features section
+    city_id=b.INT,  # The ID of the parent city in the Cities section
+    building_ids=[b.INT]
+)
+
+# Done apart from two possibly-boolean values that I've only ever seen with one value
 feature_structure = dict(
     id=b.UINT,
     mystery_int=b.INT,
