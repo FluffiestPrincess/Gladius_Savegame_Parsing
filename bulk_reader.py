@@ -61,13 +61,25 @@ master["tiles2"] = data.fpop_structure([tile2_structure, len(master["tiles"])])
 locations["features2"] = data.tell()
 master["features2"] = data.fpop_structure([feature2_structure, len(master["features"])])
 
-city2_structure = dict(
-    numbers1=[b.INT],
-    productions=[{"name": b.STRING, "id": b.INT}],
-    bin1=b.DataFormat(8, bytes),
-    buildings=[b.INT],
-    building_groups=[b.INT]
-)  # TODO unfinished
+locations["cities2"] = data.tell()
+master["cities2"] = data.fpop_structure([city2_structure, len(master["cities"])])
+
+locations["building_groups2"] = data.tell()
+master["building_groups2"] = data.fpop_structure([building_group2_structure, len(master["building_groups"])])
+
+locations["buildings2"] = data.tell()
+master["buildings2"] = data.fpop_structure([building2_structure, len(master["buildings"])])
+
+locations["units2"] = data.tell()
+master["units2"] = data.fpop_structure([unit2_structure, len(master["units"])])
+
+locations["weapons2"] = data.tell()
+master["weapons2"] = data.fpop_structure([weapon2_structure, len(master["weapons"])])
+
+locations["magic_items2"] = data.tell()
+master["magic_items2"] = data.fpop_structure([[b.INT], len(master["magic_items"])])
+
+locations["quests2"] = data.tell()
 
 # buildingGroups, buildings, units, weapons, items, quests, notifications
 
