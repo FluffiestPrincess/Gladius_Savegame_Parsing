@@ -1,8 +1,10 @@
 from bulk_reader_tools import *
 
 testing = True
-file_in_name = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\unpacked saves" \
-               r"\orquest.bulk"
+input_dir = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\unpacked saves"
+input_file = r"robots vs robots.bulk"
+input_path = os.path.join(input_dir, input_file)
+json_output_path = os.path.splitext(input_path)[0] + ".json"
 
 # According to Rok, structure is:
 # world parameters, climates, events, actions, traits, players, tiles, features, cities,
@@ -11,7 +13,7 @@ file_in_name = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\Single
 
 master = {}
 locations = {}
-data = getfile(file_in_name)
+data = getfile(input_path)
 
 for key in master_structure:
     locations[key] = data.tell()
