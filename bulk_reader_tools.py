@@ -552,3 +552,49 @@ master_structure = dict(
     magic_items=[magic_item_structure],
     quests=[quest_structure]
 )
+
+# Only relevant for parsing files with quest data in them
+notification2_prefix_lengths = dict(
+    CityGrown=0,
+    FactionDefeated=0,
+    FactionDiscovered=None,
+    FeatureExplored=0,
+    FeatureTypeDiscovered=7,
+    LordOfSkullsAppeared=0,
+    LordOfSkullsDisppeared=0,
+    PlayerLost=0,
+    PlayerWon=0,
+    PlayerWonElimination=0,
+    PlayerWonQuest=0,
+    ProductionCompleted=0,
+    QuestAdded=0,
+    QuestCompleted=0,
+    QuestUpdated=0,
+    RegionDiscovered=None,
+    ResearchCompleted=0,
+    ResourcesGainedTile=0,
+    ResourcesGainedUnit=0,
+    TileAcquired=0,
+    TileCaptured=0,
+    TileCleared=0,
+    UnitAttacked=0,
+    UnitCaptured=0,
+    UnitKilled=0,
+    UnitGainedTrait=0,
+    UnitTransformed=0,
+    UnitTypeDiscovered=8,
+    UnitUsedActionOn=0
+)
+
+master2_structure = dict(
+    traits=[b.DataFormat(8, bytes), None],
+    players=[player2_structure, None],
+    tiles=[tile2_structure, None],
+    features=[feature2_structure, None],
+    cities=[city2_structure, None],
+    building_groups=[building_group2_structure, None],
+    buildings=[b.DataFormat(20, bytes), None],
+    units=[unit2_structure, None],
+    weapons=[weapon2_structure, None],
+    magic_items=[[b.INT], None]
+)
