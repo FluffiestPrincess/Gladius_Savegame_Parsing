@@ -124,8 +124,17 @@ orders_length = len(master["players"]) \
                 + len(master["building_groups"]) \
                 + len(master["units"])
 
-locations["orders"] = data.tell()
-master["orders"] = data.fpop_structure([order_structure, orders_length])
+locations["players3"] = data.tell()
+master["players3"] = data.fpop_structure([order_structure, len(master["players"])])
+
+locations["cities3"] = data.tell()
+master["cities3"] = data.fpop_structure([order_structure, len(master["cities"])])
+
+locations["building_groups3"] = data.tell()
+master["building_groups3"] = data.fpop_structure([order_structure, len(master["building_groups"])])
+
+locations["units3"] = data.tell()
+master["units3"] = data.fpop_structure([order_structure, len(master["units"])])
 
 locations["notifications3"] = data.tell()
 master["notifications3"] = []
