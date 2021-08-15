@@ -383,6 +383,17 @@ unit4_structure = dict(
     unknown=b.INT
 )
 
+#
+# This is used by players, cities, building groups and units
+suborder_structure = (b.INT, b.INT, b.INT, b.INT, b.INT)
+
+order_structure = dict(
+    action=b.INT,
+    mystery=(b.INT, b.INT, b.INT, b.INT),
+    suborders=[suborder_structure]
+)
+
+#  needs analysis
 weapon_structure = dict(
     id=b.UINT,
     bool1=b.BOOL,
@@ -605,12 +616,4 @@ master2_structure = dict(
     units=[unit2_structure, None],
     weapons=[weapon2_structure, None],
     magic_items=[[b.INT], None]
-)
-
-suborder_structure = (b.INT, b.INT, b.INT, b.INT, b.INT)
-
-order_structure = dict(
-    action=b.INT,
-    mystery=(b.INT, b.INT, b.INT, b.INT),
-    suborders=[suborder_structure]
 )
