@@ -150,8 +150,8 @@ climate_structure = dict(
 # Basically done
 action_structure = dict(
     path=b.NZ_STRING,
-    id1=b.UINT,
-    id2=b.UINT,  # Always seems to be the same as id1
+    id=b.UINT,
+    id2=b.UINT,  # Always seems to be the same as id
     cooldown=b.DOUBLE,  # Confirmed
     not_hold_fire=b.BOOL,  # Guess. Always seems to be 0 for HoldFire and 1 for everything else.
     level=b.UINT,  # Guess
@@ -173,7 +173,7 @@ action2_weapon_structure = dict(
     weapon_id=b.INT
 )
 
-# Mostly done
+# Done, but would appreciate testing
 trait_structure = dict(
     id=b.INT,
     prerequisites=[b.NZ_STRING],  # Guess
@@ -255,7 +255,7 @@ player2_structure = dict(
     numbers6=[b.INT]
 )
 
-# Basically done, apart from bin1, which I have a few hints about, and F which is impenetrable
+# Basically done, apart from bin1, which I have a few hints about, F which is impenetrable, and the 4th-pass data
 tile_structure = dict(
     id=b.UINT,
     bin1=b.BYTE,  # Normally 1. 0 when under artefacts. I think this might be a flags field though.
@@ -271,7 +271,7 @@ tile_structure = dict(
 
 tile2_structure = dict(
     effects=[(b.STRING, b.INT)],
-    F=b.DataFormat(4, bytes),  # I have never seen this be anything other than FF FF FF FF
+    Fs=b.DataFormat(4, bytes),  # I have never seen this be anything other than FF FF FF FF
     features=[b.INT],
     city_feature_id=b.INT,  # The ID of the city feature in the Features section
     city_id=b.INT,  # The ID of the parent city in the Cities section
@@ -279,7 +279,7 @@ tile2_structure = dict(
 )
 
 tile4_structure = dict(
-    unknown=b.INT
+    unit=b.INT
 )
 
 # Done apart from two possibly-boolean values that I've only ever seen with one value
@@ -289,7 +289,7 @@ feature_structure = dict(
     duration=b.DOUBLE,  # Used for temporary orkoid fungus
     cooldown=b.DOUBLE,  # Used for skull altars
     visited=b.BOOL,  # Used for ruins, skull altars, etc.
-    bin3=b.BYTE,  # Possibly a boolean
+    bool1=b.BOOL,
     feature=b.STRING
 )
 
@@ -347,20 +347,22 @@ building2_structure = dict(
 unit_structure = dict(
     id=b.UINT,
     not_artefact=b.BOOL,  # I'm not 100% on this, but I've only seen it be 00 for Artefacts and 01 otherwise
-    bin1=b.DataFormat(25, bytes),
+    bin1=b.DataFormat(25, bytes),  # Never seems to vary
     type=b.STRING,
     action_points=b.DOUBLE,  # Guess
-    engaged=b.BOOL,  # Guess. Seems to relate to whether a unit is within 1 tile of an enemy
+    engaged1=b.BOOL,  # Guess. Seems to relate to whether a unit is within 1 tile of an enemy
     experience=b.DOUBLE,
     health=b.DOUBLE,
-    double3=b.DOUBLE,
+    double3=b.DOUBLE,  # Usually quite close to the max health value?
     morale=b.DOUBLE,
-    bin3=b.DataFormat(1, bytes),  # My guess is that this is whether or not a unit is able to make a melee attack
+    bool1=b.BOOL,  # Christ knows. Might be related to being below max morale.
     movement_remaining=b.DOUBLE,
     veteran_title=b.STRING,
-    bin4=b.DataFormat(4, bytes),
+    bin4=b.DataFormat(4, bytes),  # Only seems to be used for neutral units. Something to do with packs or aggro?
     level=b.INT,
-    bin5=b.DataFormat(3, bytes)
+    bool2=b.BOOL,
+    engaged2=b.BOOL,  # Guess. Seems to relate to whether a unit is within 1 tile of an enemy
+    bool4=b.BOOL
 )
 
 unit2_structure = dict(
@@ -369,14 +371,15 @@ unit2_structure = dict(
     bin6=b.DataFormat(16, bytes),
     int1=b.INT,
     bin7=b.DataFormat(4, bytes),
-    numbers2=[b.INT],
+    previous_move=[b.INT],  # List of tiles the unit moved through the last time it moved
     threat_tile=b.INT,  # Appears to correlate with the tile occupied by an enemy unit when units are in melee range?
-    bin8=b.DataFormat(12, bytes),
-    numbers3=[b.INT],
-    numbers4=[b.INT],
-    F=b.DWORD,
-    numbers5=[b.INT],
-    numbers6=[b.INT]
+    zeroes=b.DataFormat(8, bytes),  # I've only ever seen this be all zeroes
+    transport=b.INT,  # Only populated for units inside transports
+    weapons=[b.INT],
+    last_weapons_used=[b.INT],
+    Fs=b.DWORD,
+    transported_units=[b.INT],
+    hero_skills=[b.INT]
 )
 
 unit4_structure = dict(
@@ -403,7 +406,7 @@ weapon_structure = dict(
 
 weapon2_structure = dict(
     traits=[{"name": b.STRING, "id": b.INT}],
-    F=b.DWORD,
+    Fs=b.DWORD,
     unit_id=b.INT
 )
 
@@ -615,7 +618,7 @@ second_pass_structure = dict(
     features=[feature2_structure, None],
     cities=[city2_structure, None],
     building_groups=[building_group2_structure, None],
-    buildings=[b.DataFormat(20, bytes), None],
+    buildings=[building2_structure, None],
     units=[unit2_structure, None],
     weapons=[weapon2_structure, None],
     magic_items=[[b.INT], None]
