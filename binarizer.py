@@ -90,17 +90,32 @@ def format_output(output, form):
 
 class BinReader(mmap.mmap):
 
+    def read(self, n=None):
+        to_return = mmap.mmap.read(self, n)
+        if n is not None and len(to_return) < n:
+            raise EOFError("End of memory-mapped section reached.")
+        return to_return
+
     def read_until(self, sub):
         """
-        Read everything up until the chosen subunit of bytes is found, advancing the pointer to *after* the subunit.
+        Read everything up until the chosen subunit of bytes is found, (not including the subunit itself), then
+        advances the pointer to *after* the subunit.
         :param sub: Subunit to read until.
         :return: bytes
         """
-        loc = self.find(sub) - self.tell()
-        front = self.read(loc)
-        # Advance the pointer past the separator substring
-        self.seek(len(sub), os.SEEK_CUR)
-        return front
+        loc = self.find(sub)
+        if loc == -1:
+            print(f"WARNING: desired bytes unit {sub.__repr__()} not found, returning entire rest of data.")
+            loc = loc - self.tell()
+            front = self.read(loc)
+            self.seek(len(self))
+            return front
+        else:
+            loc = loc - self.tell()
+            front = self.read(loc)
+            # Advance the pointer past the separator substring
+            self.seek(len(sub), os.SEEK_CUR)
+            return front
 
     def read_until_re(self, pattern, inclusive=False):
         match = pattern.search(self, pos=self.tell())
@@ -211,10 +226,5 @@ class BinReader(mmap.mmap):
             return tuple([self.fpop_structure(substructure) for substructure in structure])
         elif isinstance(structure, dict):
             return {name: self.fpop_structure(structure[name]) for name in structure}
-        elif isinstance(structure, OrderedDict):
-            #
-            key_value_pairs = [(name, self.fpop_structure(structure[name])) for name in structure]
-            return OrderedDict(key_value_pairs)
         else:
             raise TypeError(f"fpop_structure does not know how to handle {type(structure)}")
-
