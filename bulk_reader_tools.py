@@ -134,10 +134,13 @@ world_params_structure = dict(
     wire_weed_density=b.UINT
 )
 
-# Really struggling to analyze coordinates
+# Note that these do NOT correspond to tile coordinates!
+# The right-hand edge of a Medium-size map is around 8000.
+# I'm not going to do more analysis because these are purely cosmetic.
 climate_structure = dict(
-    unknown=b.DataFormat(8, bytes),  # Pretty intractable. Possibly two FLOATs, but doesn't correspond to tile coords
-    arctic=b.DOUBLE,
+    x_coord=b.FLOAT,
+    y_coord=b.FLOAT,
+    arctic=b.DOUBLE,  # I've only ever seen a value of 1 for any of these.
     desert=b.DOUBLE,
     unknown_climate=b.DOUBLE,  # Probably unused
     jungle=b.DOUBLE,
