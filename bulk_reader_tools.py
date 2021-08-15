@@ -380,7 +380,7 @@ unit2_structure = dict(
 )
 
 unit4_structure = dict(
-    unknown=b.INT
+    tile_id=b.INT
 )
 
 #
@@ -398,13 +398,13 @@ weapon_structure = dict(
     id=b.UINT,
     bool1=b.BOOL,
     bool2=b.BOOL,
-    int1=b.INT
+    slot=b.INT  # Increments by 1 for each weapon on the same unit
 )
 
 weapon2_structure = dict(
     traits=[{"name": b.STRING, "id": b.INT}],
     F=b.DWORD,
-    number=b.INT
+    unit_id=b.INT
 )
 
 # No analysis needed
