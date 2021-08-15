@@ -554,7 +554,8 @@ notification_types = dict(
     )
 )
 
-# Only relevant for parsing files with quest data in them
+# Only relevant for parsing files with quest data in them - this is used as part of the regexp that skips over
+# trying to skip over the quest data and its lack of length indicators
 notification2_prefix_lengths = dict(
     CityGrown=7,
     FactionDefeated=None,
@@ -587,10 +588,10 @@ notification2_prefix_lengths = dict(
     UnitUsedActionOn=11
 )
 
-master_structure = dict(
+first_pass_structure = dict(
     world_params=world_params_structure,
-    climates=[climate_structure, b.SCHAR],  # why is this a SCHAR when everything else is UINTs?
-    events=[events_notimplemented_structure],
+    climates=[climate_structure, b.SCHAR],
+    events=[events_notimplemented_structure],  # Throws an error if used
     actions=[action_structure],
     traits=[trait_structure],
     players=[player_structure],
@@ -603,10 +604,12 @@ master_structure = dict(
     weapons=[weapon_structure],
     magic_items=[magic_item_structure],
     quests=[quest_structure]
+    # Notifications is a special case
 )
 
-master2_structure = dict(
-    traits=[b.DataFormat(8, bytes), None],
+second_pass_structure = dict(
+    # Actions is a special case
+    traits=[trait2_structure, None],
     players=[player2_structure, None],
     tiles=[tile2_structure, None],
     features=[feature2_structure, None],
@@ -616,4 +619,24 @@ master2_structure = dict(
     units=[unit2_structure, None],
     weapons=[weapon2_structure, None],
     magic_items=[[b.INT], None]
+    # Notifications is a special case
+)
+
+third_pass_structure = dict(
+    traits=[trait3_structure, None],
+    players=[order_structure, None],
+    cities=[order_structure, None],
+    building_groups=[order_structure, None],
+    units=[order_structure, None],
+    # Notifications is a special case
+)
+
+fourth_pass_structure = dict(
+    tiles=[tile4_structure, None],
+    units=[unit4_structure, None],
+    # Notifications is a special case
+)
+
+fifth_pass_structure = dict(
+    # Notifications only
 )

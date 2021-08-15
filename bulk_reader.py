@@ -6,13 +6,8 @@ input_file = r"robots vs robots.bulk"
 input_path = os.path.join(input_dir, input_file)
 json_output_path = os.path.splitext(input_path)[0] + ".json"
 
-# According to Rok, structure is:
-# world parameters, climates, events, actions, traits, players, tiles, features, cities,
-# buildingGroups, buildings, units, weapons, items, quests, notifications
-# In five passes
-
-master = {}
-locations = {}
+passes = [{}, {}, {}, {}, {}]
+locations = [{}, {}, {}, {}, {}]
 data = getfile(input_path)
 
 # ================================ #
@@ -22,13 +17,13 @@ data = getfile(input_path)
 # world parameters, climates, events, actions, traits, players, tiles, features, cities,
 # buildingGroups, buildings, units, weapons, items, quests, notifications
 
-for key in master_structure:
-    locations[key] = data.tell()
-    master[key] = data.fpop_structure(master_structure[key])
+for key in first_pass_structure:
+    locations[0][key] = data.tell()
+    passes[0][key] = data.fpop_structure(first_pass_structure[key])
 
-locations["notifications"] = data.tell()
+locations[0]["notifications"] = data.tell()
 notification_count = data.fpop(b.UINT)
-master["notifications"] = []
+passes[0]["notifications"] = []
 for n in range(notification_count):
     notif = dict(type=data.fpop(b.STRING),
                  number=data.fpop(b.UINT),
@@ -36,150 +31,133 @@ for n in range(notification_count):
                  bin1=data.fpop(3, bytes))
     extra = data.fpop_structure(notification_types[notif["type"]])
     notif.update(extra)
-    master["notifications"].append(notif)
+    passes[0]["notifications"].append(notif)
+
+# ======================================================= #
+# ==== Allocating length fields to subsequent passes ==== #
+# ======================================================= #
+
+for structure in [second_pass_structure, third_pass_structure, fourth_pass_structure, fifth_pass_structure]:
+    for key in structure:
+        length = len(passes[0][key])
+        structure[key][1] = length
 
 # ================================= #
 # ==== Second pass starts here ==== #
 # ================================= #
 
-# current player id, actions, traits, players, tiles, features, cities,
-# buildingGroups, buildings, units, weapons, items, quests, notifications
+# ID of the current active player
+passes[1]["current_player"] = data.fpop(b.UINT)
 
-master["current_player"] = data.fpop(b.UINT)
-
-locations["actions2"] = data.tell()
-master["actions2"] = []
-for action in master["actions"]:
+locations[1]["actions"] = data.tell()
+passes[1]["actions"] = []
+for action in passes[0]["actions"]:
     if is_weapon(action["path"]):
         my_data = data.fpop_structure(action2_weapon_structure)
-        master["actions2"].append(my_data)
+        passes[1]["actions"].append(my_data)
     else:
         my_data = data.fpop_structure(action2_normal_structure)
-        master["actions2"].append(my_data)
+        passes[1]["actions"].append(my_data)
 
-locations["traits2"] = data.tell()
-master["traits2"] = data.fpop_structure([trait2_structure, len(master["traits"])])
+# traits, players, tiles, features, cities, buildingGroups, buildings, units, weapons, items
+for key in second_pass_structure:
+    locations[1][key] = data.tell()
+    passes[1][key] = data.fpop_structure(second_pass_structure[key])
 
-locations["players2"] = data.tell()
-master["players2"] = data.fpop_structure([player2_structure, len(master["players"])])
-
-locations["tiles2"] = data.tell()
-master["tiles2"] = data.fpop_structure([tile2_structure, len(master["tiles"])])
-
-locations["features2"] = data.tell()
-master["features2"] = data.fpop_structure([feature2_structure, len(master["features"])])
-
-locations["cities2"] = data.tell()
-master["cities2"] = data.fpop_structure([city2_structure, len(master["cities"])])
-
-locations["building_groups2"] = data.tell()
-master["building_groups2"] = data.fpop_structure([building_group2_structure, len(master["building_groups"])])
-
-locations["buildings2"] = data.tell()
-master["buildings2"] = data.fpop_structure([building2_structure, len(master["buildings"])])
-
-locations["units2"] = data.tell()
-master["units2"] = data.fpop_structure([unit2_structure, len(master["units"])])
-
-locations["weapons2"] = data.tell()
-master["weapons2"] = data.fpop_structure([weapon2_structure, len(master["weapons"])])
-
-locations["magic_items2"] = data.tell()
-master["magic_items2"] = data.fpop_structure([[b.INT], len(master["magic_items"])])
-
-locations["quests2"] = data.tell()
-
-if len(master["quests"]) != 0:
-    # Need to deserialize the quests section, which sucks.
-    # I'm not going to try very hard since there's no need to write quests.
-    first_notif_type = master["notifications"][0]["type"]
+# Quests - not deserialized, just scanned
+locations[1]["quests"] = data.tell()
+if len(passes[0]["quests"]) != 0:
+    first_notif_type = passes[0]["notifications"][0]["type"]
     first_notif_prefix = bytes(str(notification2_prefix_lengths[first_notif_type]), "UTF-8")
     first_notif_re = b'[\x00-\x01]{' + first_notif_prefix + rb'}\w{5}'
     quest2_binary = b.DataFormat(re.compile(first_notif_re), bytes, inclusive=False)
-    master["quests2"] = data.fpop_structure(quest2_binary)
+    passes[1]["quests"] = data.fpop_structure(quest2_binary)
 else:
-    master["quests2"] = b''
+    passes[1]["quests"] = b''
 
-locations["notifications2"] = data.tell()
-master["notifications2"] = []
+# Notifications
+locations[1]["notifications"] = data.tell()
+passes[1]["notifications"] = []
 
-for notif in master["notifications"]:
+for notif in passes[0]["notifications"]:
     notif2 = dict(bin1=data.fpop(7, bytes))
     extra = data.fpop_structure(notification_types[notif["type"]])
     notif2.update(extra)
-    master["notifications2"].append(notif2)
+    passes[1]["notifications"].append(notif2)
 
 # ================================ #
 # ==== Third pass starts here ==== #
 # ================================ #
 
-# traits, then order data for players, cities, and buildingGroups, then notifications
+# traits, then order data for players, cities, and buildingGroups
+for key in third_pass_structure:
+    locations[2][key] = data.tell()
+    passes[2][key] = data.fpop_structure(third_pass_structure[key])
 
-locations["traits3"] = data.tell()
-master["traits3"] = data.fpop_structure([trait3_structure, len(master["traits"])])
+# locations[2]["traits"] = data.tell()
+# passes[2]["traits"] = data.fpop_structure([trait3_structure, len(passes[0]["traits"])])
+#
+# locations[2]["players"] = data.tell()
+# passes[2]["players"] = data.fpop_structure([order_structure, len(passes[0]["players"])])
+#
+# locations[2]["cities"] = data.tell()
+# passes[2]["cities"] = data.fpop_structure([order_structure, len(passes[0]["cities"])])
+#
+# locations[2]["building_groups"] = data.tell()
+# passes[2]["building_groups"] = data.fpop_structure([order_structure, len(passes[0]["building_groups"])])
+#
+# locations[2]["units"] = data.tell()
+# passes[2]["units"] = data.fpop_structure([order_structure, len(passes[0]["units"])])
 
-# Pretty sure this is orders - i.e. a list of what everything is actually doing at any given time.
-orders_length = len(master["players"]) \
-                + len(master["cities"]) \
-                + len(master["building_groups"]) \
-                + len(master["units"])
-
-locations["players3"] = data.tell()
-master["players3"] = data.fpop_structure([order_structure, len(master["players"])])
-
-locations["cities3"] = data.tell()
-master["cities3"] = data.fpop_structure([order_structure, len(master["cities"])])
-
-locations["building_groups3"] = data.tell()
-master["building_groups3"] = data.fpop_structure([order_structure, len(master["building_groups"])])
-
-locations["units3"] = data.tell()
-master["units3"] = data.fpop_structure([order_structure, len(master["units"])])
-
-locations["notifications3"] = data.tell()
-master["notifications3"] = []
-
-for notif in master["notifications"]:
+# Notifications again
+locations[2]["notifications"] = data.tell()
+passes[2]["notifications"] = []
+for notif in passes[0]["notifications"]:
     notif3 = dict(bin1=data.fpop(7, bytes))
     extra = data.fpop_structure(notification_types[notif["type"]])
     notif3.update(extra)
-    master["notifications3"].append(notif3)
+    passes[2]["notifications"].append(notif3)
 
 # ================================= #
 # ==== Fourth pass starts here ==== #
 # ================================= #
 
-# Tiles, units, notifications again
+# Tiles, units
+for key in fourth_pass_structure:
+    locations[3][key] = data.tell()
+    passes[3][key] = data.fpop_structure(fourth_pass_structure[key])
 
-locations["tiles4"] = data.tell()
-master["tiles4"] = data.fpop_structure([tile4_structure, len(master["tiles"])])
+# locations[3]["tiles"] = data.tell()
+# passes[3]["tiles"] = data.fpop_structure([tile4_structure, len(passes[0]["tiles"])])
+#
+# locations[3]["units"] = data.tell()
+# passes[3]["units"] = data.fpop_structure([unit4_structure, len(passes[0]["units"])])
 
-locations["units4"] = data.tell()
-master["units4"] = data.fpop_structure([unit4_structure, len(master["units"])])
-
-locations["notifications4"] = data.tell()
-master["notifications4"] = []
-
-for notif in master["notifications"]:
+# Notifications *again*
+locations[3]["notifications"] = data.tell()
+passes[3]["notifications"] = []
+for notif in passes[0]["notifications"]:
     notif4 = dict(bin1=data.fpop(7, bytes))
     extra = data.fpop_structure(notification_types[notif["type"]])
     notif4.update(extra)
-    master["notifications4"].append(notif4)
+    passes[3]["notifications"].append(notif4)
 
 # ================================ #
 # ==== Fifth pass starts here ==== #
 # ================================ #
 
-# Seems to be just notifications again
-
-locations["notifications5"] = data.tell()
-master["notifications5"] = []
-
-for notif in master["notifications"]:
+# Seems to be just notifications for a fifth and final time
+locations[4]["notifications"] = data.tell()
+passes[4]["notifications"] = []
+for notif in passes[0]["notifications"]:
     notif5 = dict(bin1=data.fpop(7, bytes))
     extra = data.fpop_structure(notification_types[notif["type"]])
     notif5.update(extra)
-    master["notifications5"].append(notif5)
+    passes[4]["notifications"].append(notif5)
+
+# =================================== #
+# ==== Cleanup and testing tools ==== #
+# =================================== #
 
 if testing:
     print("Position in file as of end of reading:")
