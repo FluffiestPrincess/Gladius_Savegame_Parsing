@@ -158,6 +158,8 @@ action_structure = dict(
     item_id=b.INT  # -1 if not associated with an item
 )
 
+# The second part of the action data has an extra 4 bytes if the action is a weapon.
+# See above for attempts to work out which actions are weapons
 action2_normal_structure = dict(
     linked_traits=[b.INT],
     bin1=b.DWORD,  # Only ever 00 00 00 00
@@ -167,7 +169,7 @@ action2_normal_structure = dict(
 action2_weapon_structure = dict(
     linked_traits=[b.INT],
     bin1=b.DWORD,  # Only ever 00 00 00 00
-    item_id=b.INT,
+    item_id_2=b.INT,
     weapon_id=b.INT
 )
 
