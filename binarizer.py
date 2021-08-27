@@ -35,15 +35,21 @@ class DataFormat(object):
     A utility object for storing the values that BinReader look for when deciding how much data to read, and how to
     format it. Acts like an extremely budget iterable.
     """
-    def __init__(self, until, form=None, allow_zero_length=True, inclusive=True):
+    def __init__(self, until, from_bytes=None, to_bytes=None, allow_zero_length=True, inclusive=True):
         self.until = until
-        self.form = form
+        self.from_bytes = from_bytes
+        # allow_zero_length is no longer used but is retained for backwards-compatibility
         self.allow_zero_length = allow_zero_length
         self.inclusive = inclusive
+        if to_bytes is None:
+            self.to_bytes = from_bytes
+        else:
+            self.to_bytes = to_bytes
 
     def __iter__(self):
         # Needed to support func(*DataType)
-        return (self.until, self.form, self.allow_zero_length, self.inclusive).__iter__()
+        # Notably does NOT return to_bytes!
+        return (self.until, self.from_bytes, self.allow_zero_length, self.inclusive).__iter__()
 
 
 BYTE = DataFormat(1, bytes)
