@@ -11,13 +11,13 @@ def trylen(x):
         return 1
 
 
-def events_error(_):
-    raise NotImplementedError("This save file contains an Events section, which I unfortunately do not yet know how "
-                              "to parse.")
+# def events_error(_):
+#     raise NotImplementedError("This save file contains an Events section, which I unfortunately do not yet know how "
+#                               "to parse.")
 
 
 #  A bit of a hack; this is a valid DataFormat, but if it's ever used it returns NotImplementedError.
-events_notimplemented_structure = b.DataFormat(0, events_error)
+# events_notimplemented_structure = b.DataFormat(0, events_error)
 
 # Actions that are also weapons seem to work differently - they have an extra byte of data at the end.
 # Because of this, we need a mechanism to identify them.
