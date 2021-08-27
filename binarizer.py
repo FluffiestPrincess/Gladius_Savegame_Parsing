@@ -207,39 +207,37 @@ class BinReader(mmap.mmap):
             [STRING, UINT]: The data contains a sequence of null-terminated strings, preceded by a UINT length marker
             specifying how many strings there are. This will be returned as a list of strings.
             [STRING, ULONG]: As above, but with a ULONG rather than a UINT. Any numeric DataType can be specified.
-            [STRING]: A shortened form of [STRING, UINT]
+            [STRING]: A shortened form of [STRING, UINT], provided because most length indicators are UINTs.
             [(STRING, FLOAT), 10]: The data contains ten blocks, each of which is a null-terminated string followed by a
-            FLOAT. This will be returned as a list of tuples.
+            FLOAT. This will be returned as a list of 2-tuples.
             [{"name": STRING, "price": FLOAT}, 10]: As above, but instead of a list of tuples, the return value
             will be a list of dictionaries each with keys "name" and "price".
-            [OrderedDict(name=STRING, price=FLOAT), 10]: As above, but with an OrderedDict instead of a regular
-            dictionary
             [[STRING], 10]: The data contains a sequence of ten blocks, each of which is a sequence of strings
             preceded by a UINT length indicator
 
-        :return: Typically a list, but you can call fpop_structure(self, STRING) and just get a string or something.
+        :return: Varies depending on structure.
         """
         # Maybe I should implement this as a generator
         if isinstance(structure, DataFormat):
+            # structure specifies the length and format of data
             return self.fpop(*structure)
-        elif isinstance(structure, list) and len(structure) == 1:
+        elif isinstance(structure, list):
             substructure = structure[0]
-            length = self.fpop(UINT)
-            return [self.fpop_structure(substructure) for _ in range(length)]
-        elif isinstance(structure, list) and len(structure) == 2:
-            substructure = structure[0]
-            if isinstance(structure[1], int):
+            if len(structure) == 1:
+                # Shorthand for [substructure, UINT]
+                length = self.fpop(UINT)
+            elif isinstance(structure[1], int):
+                # A fixed-length list
                 length = structure[1]
             elif isinstance(structure[1], DataFormat):
+                # A list prefixed with the length of the list
                 length = self.fpop(*structure[1])
             else:
                 raise TypeError(f"Second element in list must by int or DataFormat, not {type(structure[1])}")
             return [self.fpop_structure(substructure) for _ in range(length)]
-        elif isinstance(structure, list):
-            raise ValueError("Length of list must be 1 or 2.")
-        elif isinstance(structure, tuple):
-            return tuple([self.fpop_structure(substructure) for substructure in structure])
         elif isinstance(structure, dict):
+            # Just a sequence of other objects, but this time we have labels for them
             return {name: self.fpop_structure(structure[name]) for name in structure}
         else:
-            raise TypeError(f"fpop_structure does not know how to handle {type(structure)}")
+            # Anything else is probably an iterable.
+            return [self.fpop_structure(substructure) for substructure in structure]
