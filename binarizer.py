@@ -79,7 +79,9 @@ FLOAT = DataFormat(4, "f")
 DOUBLE = DataFormat(8, "d")
 BOOL = DataFormat(1, "?")
 STRING = DataFormat(b"\x00", lambda x: x.decode())
-NZ_STRING = DataFormat(b"\x00", lambda x: x.decode(), False)  # Non-zero-length string
+
+# Non-zero-length string, used until I realized it was almost certainly an error.
+# NZ_STRING = DataFormat(b"\x00", lambda x: x.decode(), lambda x: bytes(x, "UTF-8")+b'\x00' allow_zero_length=False)
 
 
 def format_output(output, form):
