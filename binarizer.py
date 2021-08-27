@@ -26,7 +26,7 @@ class BytesJSONEncoder(json.JSONEncoder):
     A JSON encoder that supports writing bytes object as strings like '10 00 DE AD BE EF'.
     """
     def default(self, o):
-        return pretty_hex(o)
+        return {"bytes": pretty_hex(o)}
 
 
 class DataFormat(object):
