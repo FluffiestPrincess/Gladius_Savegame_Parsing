@@ -1,20 +1,6 @@
-import argparse
 import os
 import re
 import binarizer as b
-
-
-def getfile(file=None):
-    if file is None:
-        parser = argparse.ArgumentParser(description="Deserializes the bulk files into native Python objects.")
-        parser.add_argument("filename")
-        args = parser.parse_args()
-        file = os.path.abspath(args.filename)
-    print(f"Parsing {os.path.basename(file)}")
-    # If you try to open(file_in_name, 'rb') without setting access=b.mmap.ACCESS_READ, you get an error.
-    with open(file, 'rb') as file:
-        data = b.BinReader(file.fileno(), 0, access=b.mmap.ACCESS_READ)
-    return data
 
 
 # To make it slightly easier to get the lengths of structures.

@@ -1,3 +1,4 @@
+import argparse
 from bulk_reader_tools import *
 
 testing = True
@@ -6,7 +7,7 @@ locations = [{}, {}, {}, {}, {}]  # Location within the bulk file of each intere
 
 # Used for testing
 input_path = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\unpacked saves" \
-             r"\Enslavers.bulk"
+             r"\Rhana Dandra.bulk"
 
 # ====================================================================== #
 # ==== Get the name of the binary data file and open it for reading ==== #
@@ -20,7 +21,11 @@ if not testing:
 
 json_output_path = os.path.splitext(input_path)[0] + ".json"
 
-binary = getfile(input_path)
+print(f"Deserializing {os.path.basename(input_path)}")
+
+# If you try to open(file_in_name, 'rb') without setting access=b.mmap.ACCESS_READ, you get an error.
+with open(input_path, 'rb') as input_path:
+    binary = b.BinReader(input_path.fileno(), 0, access=b.mmap.ACCESS_READ)
 
 # ================================ #
 # ==== First pass starts here ==== #
