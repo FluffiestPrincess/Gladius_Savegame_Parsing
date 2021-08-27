@@ -1,3 +1,4 @@
+import json
 import argparse
 import os
 import re
@@ -189,3 +190,5 @@ if testing:
     print(binary.tell())
 if not testing:
     binary.close()
+    with open(json_output_path, 'w') as input_path:
+        json.dump(passes, input_path, cls=b.BytesJSONEncoder, indent="    ")
