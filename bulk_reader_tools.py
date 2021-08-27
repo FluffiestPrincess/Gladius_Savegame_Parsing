@@ -19,65 +19,14 @@ def trylen(x):
 #  A bit of a hack; this is a valid DataFormat, but if it's ever used it returns NotImplementedError.
 # events_notimplemented_structure = b.DataFormat(0, events_error)
 
-# Actions that are also weapons seem to work differently - they have an extra byte of data at the end.
-# Because of this, we need a mechanism to identify them.
-weapons_directory = r"C:\Program Files (x86)\Steam\steamapps\common\Warhammer 40000 Gladius - Relics of " \
-                    r"War\Data\World\Weapons"
-weapons = [_os.path.splitext(file)[0].lower() for file in _os.listdir(weapons_directory)]
-weapon_like_actions = ["throwGrenade",
-                       "useWeapon",
-                       "heavyBombClusters",
-                       "moltenBeam",
-                       "lifeLeech",
-                       "psychicMaelstrom",
-                       "rollOverThem",
-                       "flameBreath",
-                       "exaltedStrike",
-                       "destroyerBlades",
-                       "mechatendrils",
-                       "eldritchStorm",
-                       "serpentShield",
-                       "stomp",
-                       "voidStrike",
-                       "transdimensionalThunderbolt",
-                       "skyOfFallingStars",
-                       "seismicAssault",
-                       "burnaBomb",
-                       "attackSquig",
-                       "frazzle",
-                       "powerStrike",
-                       "preciseShot"]
-weapon_like_actions = [s.lower() for s in weapon_like_actions]
-weapons_log = []
-
-
-def is_weapon(path):
-    global weapons_log
-    split_path = path.split('/')
-    # This is only very approximate
-    if split_path[0] == "Units"\
-            and split_path[-1].lower() in weapons \
-            and len(split_path) >= 5 \
-            and split_path[-2].lower() in weapon_like_actions:
-        weapons_log.append(f"{path} is a weapon - begins with Units, ends in a weapon, length >= 5, penultimate "
-                           f"section {split_path[-2].lower()} found in weapon_like_actions")
-        return True
-    elif split_path[0] == "Units" \
-            and split_path[-1].lower() in weapons \
-            and len(split_path) >= 5:
-        weapons_log.append(f"{path} is probably a weapon - begins with Units, ends in a weapon, length >= 5, but "
-                           f"penultimate section {split_path[-2].lower()} NOT found in weapon_like_actions")
-        raise RuntimeError(f"Unable to determine if {path} is a weapon.")
-    elif split_path[-2].lower() in weapon_like_actions:
-        weapons_log.append(f"{path} MIGHT be a weapon - penultimate "
-                           f"section {split_path[-2].lower()} found in weapon_like_actions")
-        raise RuntimeError(f"Unable to determine if {path} is a weapon.")
-    elif split_path[-1].lower() == "spawnunits":
-        weapons_log.append(f"""{path} isn't a weapon, but it is "spawn units".""")
-        return True
-    else:
-        return False
-
+header_structure = dict(version=b.STRING,
+                        branch=b.STRING,
+                        revision=b.STRING,
+                        build=b.STRING,
+                        steamuser=b.STRING,
+                        turn=b.INT,
+                        checksum=b.INT,
+                        mod_count=b.INT)
 
 # Analysis basically done, except the weird initial bytes.
 world_params_structure = dict(
@@ -156,7 +105,7 @@ action_cycle_weapon_structure = dict(
 )
 
 # The second part of the action data has an extra 4 bytes if the action is a weapon.
-# See above for attempts to work out which actions are weapons
+# See below for attempts to work out which actions are weapons
 action2_normal_structure = dict(
     linked_traits=[b.INT],
     bin1=b.DWORD,  # Only ever 00 00 00 00
@@ -169,6 +118,67 @@ action2_weapon_structure = dict(
     item_id_2=b.INT,
     weapon_id=b.INT
 )
+
+
+# Actions that are also weapons seem to work differently - they have an extra byte of data at the end.
+# Because of this, we need a mechanism to identify them.
+weapons_directory = r"C:\Program Files (x86)\Steam\steamapps\common\Warhammer 40000 Gladius - Relics of " \
+                    r"War\Data\World\Weapons"
+weapons = [_os.path.splitext(file)[0].lower() for file in _os.listdir(weapons_directory)]
+weapon_like_actions = ["throwGrenade",
+                       "useWeapon",
+                       "heavyBombClusters",
+                       "moltenBeam",
+                       "lifeLeech",
+                       "psychicMaelstrom",
+                       "rollOverThem",
+                       "flameBreath",
+                       "exaltedStrike",
+                       "destroyerBlades",
+                       "mechatendrils",
+                       "eldritchStorm",
+                       "serpentShield",
+                       "stomp",
+                       "voidStrike",
+                       "transdimensionalThunderbolt",
+                       "skyOfFallingStars",
+                       "seismicAssault",
+                       "burnaBomb",
+                       "attackSquig",
+                       "frazzle",
+                       "powerStrike",
+                       "preciseShot"]
+weapon_like_actions = [s.lower() for s in weapon_like_actions]
+weapons_log = []
+
+
+def is_weapon(path):
+    global weapons_log
+    split_path = path.split('/')
+    # This is only very approximate
+    if split_path[0] == "Units"\
+            and split_path[-1].lower() in weapons \
+            and len(split_path) >= 5 \
+            and split_path[-2].lower() in weapon_like_actions:
+        weapons_log.append(f"{path} is a weapon - begins with Units, ends in a weapon, length >= 5, penultimate "
+                           f"section {split_path[-2].lower()} found in weapon_like_actions")
+        return True
+    elif split_path[0] == "Units" \
+            and split_path[-1].lower() in weapons \
+            and len(split_path) >= 5:
+        weapons_log.append(f"{path} is probably a weapon - begins with Units, ends in a weapon, length >= 5, but "
+                           f"penultimate section {split_path[-2].lower()} NOT found in weapon_like_actions")
+        raise RuntimeError(f"Unable to determine if {path} is a weapon.")
+    elif split_path[-2].lower() in weapon_like_actions:
+        weapons_log.append(f"{path} MIGHT be a weapon - penultimate "
+                           f"section {split_path[-2].lower()} found in weapon_like_actions")
+        raise RuntimeError(f"Unable to determine if {path} is a weapon.")
+    elif split_path[-1].lower() == "spawnunits":
+        weapons_log.append(f"""{path} isn't a weapon, but it is "spawn units".""")
+        return True
+    else:
+        return False
+
 
 # Done, but would appreciate testing
 trait_structure = dict(
@@ -357,7 +367,7 @@ unit_structure = dict(
     veteran_title=b.STRING,
     bin4=b.DataFormat(4),  # Only seems to be used for neutral units. Something to do with packs or aggro?
     level=b.INT,
-    bool2=b.BOOL,
+    bool2=b.BOOL,  # I've never seen this be anything other than 00
     engaged2=b.BOOL,  # Guess. Seems to relate to whether a unit is within 1 tile of an enemy
     bool4=b.BOOL
 )
@@ -365,9 +375,12 @@ unit_structure = dict(
 unit2_structure = dict(
     actions=[b.INT],
     traits=[{"name": b.STRING, "id": b.INT}],
-    bin6=b.DataFormat(16),
-    int1=b.INT,
-    bin7=b.DataFormat(4),
+    owner=b.INT,
+    controller=b.INT,  # Can be different from owner because of Enslavers
+    zeroes1=b.DataFormat(4),
+    bin9=b.DataFormat(4),
+    parent_tile=b.INT,  # The tile the unit was spawned from
+    int1=b.INT,  # Usually but not always the id of *this* unit; maybe something to do with healing
     previous_move=[b.INT],  # List of tiles the unit moved through the last time it moved
     threat_tile=b.INT,  # Appears to correlate with the tile occupied by an enemy unit when units are in melee range?
     zeroes2=b.DataFormat(8),
@@ -385,11 +398,11 @@ unit4_structure = dict(
 
 #
 # This is used by players, cities, building groups and units
-suborder_structure = (b.INT, b.INT, b.INT, b.INT, b.INT)
+suborder_structure = (b.INT, b.DWORD, b.INT, b.INT, b.INT)
 
 order_structure = dict(
-    action=b.INT,
-    mystery=(b.INT, b.INT, b.INT, b.INT),
+    order_action=b.INT,
+    order_mystery=(b.DWORD, b.INT, b.INT, b.INT),
     suborders=[suborder_structure]
 )
 
