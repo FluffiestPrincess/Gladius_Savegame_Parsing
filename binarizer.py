@@ -51,6 +51,13 @@ class DataFormat(object):
         # Notably does NOT return to_bytes!
         return (self.until, self.from_bytes, self.allow_zero_length, self.inclusive).__iter__()
 
+    def __repr__(self):
+        return f"{__name__}.{type(self).__name__}(" \
+               f"until={self.until.__repr__()}, " \
+               f"from_bytes={self.from_bytes.__repr__()}, " \
+               f"to_bytes={self.to_bytes.__repr__()}, " \
+               f"allow_zero_length={self.allow_zero_length.__repr__()}, " \
+               f"inclusive={self.inclusive.__repr__()})"
 
 BYTE = DataFormat(1, bytes)
 WORD = DataFormat(2, bytes)
