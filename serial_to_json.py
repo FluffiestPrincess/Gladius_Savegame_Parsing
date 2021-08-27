@@ -26,12 +26,35 @@ binary = getfile(input_path)
 # ==== First pass starts here ==== #
 # ================================ #
 
-# world parameters, climates, events, actions, traits, players, tiles, features, cities,
-# buildingGroups, buildings, units, weapons, items, quests, notifications
+# world parameters, climates
 
-for key in first_pass_structure:
+for key in first_pass_structure_1:
     locations[0][key] = binary.tell()
-    passes[0][key] = binary.fpop_structure(first_pass_structure[key])
+    passes[0][key] = binary.fpop_structure(first_pass_structure_1[key])
+
+# Events
+locations[0]["events"] = binary.tell()
+passes[0]["events"] = binary.fpop(b.UINT)
+if passes[0]["events"] != 0:
+    raise NotImplementedError("Events section parsing is not implemented.")
+
+# Actions
+locations[0]["actions"] = binary.tell()
+action_count = binary.fpop(b.UINT)
+passes[0]["actions"] = []
+for n in range(action_count):
+    action = binary.fpop_structure(action_structure)
+    if action["path"].endswith("CycleWeapon"):
+        action["bool1"] = binary.fpop(b.BOOL)
+    passes[0]["actions"].append(action)
+
+# Traits, players, tiles, features, cities, buildingGroups, buildings, units, weapons, items, quests.
+
+for key in first_pass_structure_2:
+    locations[0][key] = binary.tell()
+    passes[0][key] = binary.fpop_structure(first_pass_structure_2[key])
+
+# Finally, notifications.
 
 locations[0]["notifications"] = binary.tell()
 notification_count = binary.fpop(b.UINT)
@@ -40,7 +63,7 @@ for n in range(notification_count):
     notif = dict(type=binary.fpop(b.STRING),
                  number=binary.fpop(b.UINT),
                  player=binary.fpop(b.UINT),
-                 bin1=binary.fpop(3, bytes))
+                 bin1=binary.fpop(3))
     extra = binary.fpop_structure(notification_types[notif["type"]])
     notif.update(extra)
     passes[0]["notifications"].append(notif)
@@ -52,7 +75,10 @@ for n in range(notification_count):
 for structure in [second_pass_structure, third_pass_structure, fourth_pass_structure, fifth_pass_structure]:
     for key in structure:
         length = len(passes[0][key])
-        structure[key][1] = length
+        try:
+            structure[key][1] = length
+        except TypeError:
+            pass
 
 # ================================= #
 # ==== Second pass starts here ==== #

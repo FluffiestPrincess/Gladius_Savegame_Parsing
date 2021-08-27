@@ -147,15 +147,26 @@ climate_structure = dict(
     volcanic=b.DOUBLE,
 )
 
-# Basically done
+# Note that if the action is a "CycleWeapon", there's one extra boolean on the end.
 action_structure = dict(
-    path=b.NZ_STRING,
+    path=b.STRING,
     id=b.UINT,
     id2=b.UINT,  # Always seems to be the same as id
     cooldown=b.DOUBLE,  # Confirmed
     not_hold_fire=b.BOOL,  # Guess. Always seems to be 0 for HoldFire and 1 for everything else.
     level=b.UINT,  # Guess
     item_id=b.INT  # -1 if not associated with an item
+)
+
+action_cycle_weapon_structure = dict(
+    path=b.STRING,
+    id=b.UINT,
+    id2=b.UINT,  # Always seems to be the same as id
+    cooldown=b.DOUBLE,  # Confirmed
+    not_hold_fire=b.BOOL,  # Guess. Always seems to be 0 for HoldFire and 1 for everything else.
+    level=b.UINT,  # Guess
+    item_id=b.INT,  # -1 if not associated with an item
+    bool1=b.BOOL
 )
 
 # The second part of the action data has an extra 4 bytes if the action is a weapon.
@@ -591,11 +602,14 @@ notification2_prefix_lengths = dict(
     UnitUsedActionOn=11
 )
 
-first_pass_structure = dict(
+first_pass_structure_1 = dict(
     world_params=world_params_structure,
     climates=[climate_structure, b.SCHAR],
-    events=[events_notimplemented_structure],  # Throws an error if used
-    actions=[action_structure],
+    # events=[events_notimplemented_structure],  # Throws an error if used
+    # actions=[b.select_structure(action_reader, action_writer)],  # Experimental
+)
+
+first_pass_structure_2 = dict(
     traits=[trait_structure],
     players=[player_structure],
     tiles=[tile_structure],
