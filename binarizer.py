@@ -14,7 +14,7 @@ def pretty_hex(b):
 
 
 def pretty_binary(b):
-    binary = [bin(char) for char in b]  # Convert bytes to binary
+    binary = [bin(char) for char in b]  # Convert bytes to strings representing binary
     binary = [string.replace("0b", "") for string in binary]  # Remove binary format specifier
     binary = ['{:0>8}'.format(string) for string in binary]  # Pad to 8 digits per block
     binary = " ".join(binary)
@@ -23,7 +23,8 @@ def pretty_binary(b):
 
 class BytesJSONEncoder(json.JSONEncoder):
     """
-    A JSON encoder that supports writing bytes object as strings like '10 00 DE AD BE EF'.
+    A JSON encoder that supports writing bytes object as strings like '10 00 DE AD BE EF', although wrapped in an
+    object for easy decoding.
     """
     def default(self, o):
         return {"bytes": pretty_hex(o)}
@@ -159,10 +160,8 @@ class BinReader(mmap.mmap):
             # Split by regular expression
             front = self.read_until_re(until, inclusive)
         elif isinstance(until, DataFormat):
-            # There's a good chance I'm just going to remove this option.
-            # You can fake it with my_BinReader.fpop(*my_DataFormat)
-            front = self.fpop(until.until, until.form, until.allow_zero_length)
-            form = None
+            front = self.fpop(*until)
+            form = None  # To avoid formatting the output twice
         else:
             raise TypeError("Currently only supports splitting by 'bytes', 'int', and 're.Pattern' objects.")
         return format_output(front, form)
