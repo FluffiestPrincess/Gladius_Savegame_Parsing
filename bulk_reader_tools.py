@@ -1,5 +1,5 @@
-import os
-import re
+import os as _os
+import re as _re
 import binarizer as b
 
 
@@ -23,7 +23,7 @@ events_notimplemented_structure = b.DataFormat(0, events_error)
 # Because of this, we need a mechanism to identify them.
 weapons_directory = r"C:\Program Files (x86)\Steam\steamapps\common\Warhammer 40000 Gladius - Relics of " \
                     r"War\Data\World\Weapons"
-weapons = [os.path.splitext(file)[0].lower() for file in os.listdir(weapons_directory)]
+weapons = [_os.path.splitext(file)[0].lower() for file in _os.listdir(weapons_directory)]
 weapon_like_actions = ["throwGrenade",
                        "useWeapon",
                        "heavyBombClusters",
@@ -420,7 +420,7 @@ magic_item_structure = dict(
 # ideally I would find a better way to get the right amount of data
 # However, I don't need to worry too much - no quests are active at game start.
 quest_re = rb'(Factions/|....[a-z,A-Z]{4,}\x00)'
-quest_binary = b.DataFormat(re.compile(quest_re), bytes, inclusive=False)
+quest_binary = b.DataFormat(_re.compile(quest_re), bytes, inclusive=False)
 
 quest_structure = dict(
     name=b.STRING,

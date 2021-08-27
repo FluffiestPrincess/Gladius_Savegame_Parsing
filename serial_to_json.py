@@ -1,4 +1,6 @@
 import argparse
+import os
+import re
 from bulk_reader_tools import *
 
 testing = True
