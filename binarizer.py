@@ -92,12 +92,12 @@ def format_output(output, form):
         If None, does nothing and just returns the result as-is.
     :return:
     """
-    if callable(form):
+    if form is None:
+        return output
+    elif callable(form):
         return form(output)
     elif isinstance(form, str):
         return struct.unpack(form, output)[0]
-    elif form is None:
-        return output
     else:
         raise TypeError("Currently only supports formatting outputs with callable functions or with a string that "
                         "is passed as a pattern to struct.unpack.")
