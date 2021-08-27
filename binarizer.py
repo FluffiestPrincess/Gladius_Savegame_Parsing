@@ -59,10 +59,11 @@ class DataFormat(object):
                f"allow_zero_length={self.allow_zero_length.__repr__()}, " \
                f"inclusive={self.inclusive.__repr__()})"
 
-BYTE = DataFormat(1, bytes)
-WORD = DataFormat(2, bytes)
-DWORD = DataFormat(4, bytes)
-QWORD = DataFormat(8, bytes)
+
+BYTE = DataFormat(1)
+WORD = DataFormat(2)
+DWORD = DataFormat(4)
+QWORD = DataFormat(8)
 CHAR = DataFormat(1, "c")
 SCHAR = DataFormat(1, "b")
 UCHAR = DataFormat(1, "B")

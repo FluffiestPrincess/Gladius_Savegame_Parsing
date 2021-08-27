@@ -95,7 +95,7 @@ def is_weapon(path):
 
 # Analysis basically done, except the weird initial bytes.
 world_params_structure = dict(
-    bin1=b.DataFormat(8, bytes),
+    bin1=b.DataFormat(8),
     achievements_enabled=b.BOOL,
     mods=[b.STRING],
     adaptive_turn_timer=b.BOOL,
@@ -197,14 +197,14 @@ trait3_structure = dict(
 
 player_structure = dict(
     id=b.UINT,
-    bin1=b.DataFormat(30, bytes),  # Unknown purpose
+    bin1=b.DataFormat(30),  # Unknown purpose
     economy_score=[b.DOUBLE],
     military_score=[b.DOUBLE],
     research_score=[b.DOUBLE],
     buildings=[(b.NZ_STRING, b.INT)],  # Count of buildings does not appear to be accurate
     damage_dealt_cumulative=[(b.NZ_STRING, b.DOUBLE)],
     damage_taken_cumulative=[(b.NZ_STRING, b.DOUBLE)],
-    bin5=b.DataFormat(8, bytes),  # Unknown purpose
+    bin5=b.DataFormat(8),  # Unknown purpose
     resources_cumulative=[(b.NZ_STRING, b.DOUBLE)],
     units_created_cumulative=[(b.NZ_STRING, b.INT)],
     units_killed_cumulative=[(b.NZ_STRING, b.INT)],
@@ -212,13 +212,13 @@ player_structure = dict(
     name=b.STRING,
     faction=b.STRING,
     is_AI=b.BOOL,
-    bin7=b.DataFormat(38, bytes),  # Unknown purpose
+    bin7=b.DataFormat(38),  # Unknown purpose
     colour=b.STRING,
-    bin8=b.DataFormat(9, bytes),  # Unknown purpose
+    bin8=b.DataFormat(9),  # Unknown purpose
     features_seen=[b.NZ_STRING],
     items8=[b.NZ_STRING],  # Unknown purpose
     DLCs=[b.NZ_STRING],
-    bin9=b.DataFormat(8, bytes),  # Unknown purpose
+    bin9=b.DataFormat(8),  # Unknown purpose
     double1=b.DOUBLE,  # Unknown purpose
     energy=b.DOUBLE,
     double2=b.DOUBLE,  # Unknown purpose
@@ -234,7 +234,7 @@ player_structure = dict(
     research_unk1=[b.NZ_STRING],  # Frequently the same list as the one below
     research_unk2=[b.NZ_STRING],  # I believe this is research completed
     research_underway=[b.NZ_STRING],
-    bin10=b.DataFormat(6, bytes)  # Unknown purpose
+    bin10=b.DataFormat(6)  # Unknown purpose
 )
 
 player2_structure = dict(
@@ -271,7 +271,7 @@ tile_structure = dict(
 
 tile2_structure = dict(
     effects=[(b.STRING, b.INT)],
-    Fs=b.DataFormat(4, bytes),  # I have never seen this be anything other than FF FF FF FF
+    Fs=b.DataFormat(4),  # I have never seen this be anything other than FF FF FF FF
     features=[b.INT],
     city_feature_id=b.INT,  # The ID of the city feature in the Features section
     city_id=b.INT,  # The ID of the parent city in the Cities section
@@ -302,17 +302,17 @@ feature2_structure = dict(
 # At game start there are no cities or buildings, so analysis of these sections aren't that important.
 city_structure = dict(
     id=b.UINT,
-    bin1=b.DataFormat(26, bytes),
+    bin1=b.DataFormat(26),
     faction1=b.STRING,
     faction2=b.STRING,
     name=b.STRING,
-    bin2=b.DataFormat(9, bytes)
+    bin2=b.DataFormat(9)
 )
 
 city2_structure = dict(
     numbers1=[b.INT],
     productions=[{"name": b.STRING, "id": b.INT}],
-    bin3=b.DataFormat(8, bytes),
+    bin3=b.DataFormat(8),
     buildings=[b.INT],
     building_groups=[b.INT],
     tiles_occupied=[b.INT],
@@ -321,16 +321,16 @@ city2_structure = dict(
 
 building_group_structure = dict(
     id=b.UINT,
-    bin1=b.DataFormat(26, bytes),
+    bin1=b.DataFormat(26),
     type=b.STRING
 )
 
 building_group2_structure = dict(
     numbers1=[b.INT],
     strings=[{"name": b.STRING, "id": b.INT}],
-    bin2=b.DataFormat(8, bytes),
+    bin2=b.DataFormat(8),
     buildings=[b.UINT],
-    bin3=b.DataFormat(8, bytes)
+    bin3=b.DataFormat(8)
 )
 
 building_structure = dict(
@@ -341,13 +341,13 @@ building_structure = dict(
 )
 
 building2_structure = dict(
-    bin2=b.DataFormat(20, bytes)
+    bin2=b.DataFormat(20)
 )
 
 unit_structure = dict(
     id=b.UINT,
     not_artefact=b.BOOL,  # I'm not 100% on this, but I've only seen it be 00 for Artefacts and 01 otherwise
-    bin1=b.DataFormat(25, bytes),  # Never seems to vary
+    bin1=b.DataFormat(25),  # Never seems to vary
     type=b.STRING,
     action_points=b.DOUBLE,  # Guess
     engaged1=b.BOOL,  # Guess. Seems to relate to whether a unit is within 1 tile of an enemy
@@ -358,7 +358,7 @@ unit_structure = dict(
     bool1=b.BOOL,  # Christ knows. Might be related to being below max morale.
     movement_remaining=b.DOUBLE,
     veteran_title=b.STRING,
-    bin4=b.DataFormat(4, bytes),  # Only seems to be used for neutral units. Something to do with packs or aggro?
+    bin4=b.DataFormat(4),  # Only seems to be used for neutral units. Something to do with packs or aggro?
     level=b.INT,
     bool2=b.BOOL,
     engaged2=b.BOOL,  # Guess. Seems to relate to whether a unit is within 1 tile of an enemy
@@ -368,12 +368,12 @@ unit_structure = dict(
 unit2_structure = dict(
     actions=[b.INT],
     traits=[{"name": b.STRING, "id": b.INT}],
-    bin6=b.DataFormat(16, bytes),
+    bin6=b.DataFormat(16),
     int1=b.INT,
-    bin7=b.DataFormat(4, bytes),
+    bin7=b.DataFormat(4),
     previous_move=[b.INT],  # List of tiles the unit moved through the last time it moved
     threat_tile=b.INT,  # Appears to correlate with the tile occupied by an enemy unit when units are in melee range?
-    zeroes=b.DataFormat(8, bytes),  # I've only ever seen this be all zeroes
+    zeroes2=b.DataFormat(8),
     transport=b.INT,  # Only populated for units inside transports
     weapons=[b.INT],
     last_weapons_used=[b.INT],
@@ -412,7 +412,7 @@ weapon2_structure = dict(
 
 # No analysis needed
 magic_item_structure = dict(
-    id=b.DataFormat(4, bytes),
+    id=b.DataFormat(4),
     name=b.STRING
 )
 
@@ -437,7 +437,7 @@ notification_base_structure = dict(
     type=b.STRING,
     number=b.UINT,
     player=b.UINT,
-    bin1=b.DataFormat(3, bytes)
+    bin1=b.DataFormat(3)
 )
 
 # I *think* bin2 is the tile the notification is tied to.
@@ -446,21 +446,21 @@ notification_types = dict(
     CityGrown=dict(
         city=b.STRING,
         details=b.STRING,
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     ),
     FactionDefeated=None,  # TODO: Make a save file after surrendering
     FactionDiscovered=dict(
         faction=b.UINT,
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     ),
     FeatureExplored=dict(
         feature=b.STRING,
         details=b.STRING,
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     ),
     FeatureTypeDiscovered=dict(
         feature=b.STRING,
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     ),
     LordOfSkullsAppeared=None,  # I don't have this DLC and can't easily test
     LordOfSkullsDisppeared=None,
@@ -471,19 +471,19 @@ notification_types = dict(
     ProductionCompleted=dict(
         produced=b.STRING,
         city=b.STRING,
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     ),
     QuestAdded=dict(
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     ),
     QuestCompleted=dict(
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     ),
     QuestUpdated=dict(
-        bin2=b.DataFormat(8, bytes)
+        bin2=b.DataFormat(8)
     ),
     RegionDiscovered=dict(
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     ),
     ResearchCompleted=dict(
         research=b.STRING
@@ -491,69 +491,69 @@ notification_types = dict(
     ResourcesGainedTile=dict(
         amount=b.DOUBLE,
         resource=b.STRING,
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     ),
     ResourcesGainedUnit=dict(
         amount=b.DOUBLE,
         resource=b.STRING,
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     ),
     TileAcquired=dict(
         city=b.STRING,
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     ),
     TileCaptured=dict(
-        bin3=b.DataFormat(8, bytes),
+        bin3=b.DataFormat(8),
         capturer=b.STRING
     ),
     TileCleared=dict(
         city=b.STRING,
         feature=b.STRING,
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     ),
     UnitAttacked=dict(
-        bin3=b.DataFormat(24, bytes),
+        bin3=b.DataFormat(24),
         unit1=b.STRING,
-        bin4=b.DataFormat(24, bytes),
+        bin4=b.DataFormat(24),
         unit2=b.STRING,
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     ),
     UnitCaptured=dict(
-        bin3=b.DataFormat(4, bytes),
+        bin3=b.DataFormat(4),
         capturer=b.STRING,
         capturee=b.STRING,
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     ),
     UnitKilled=dict(
-        bin3=b.DataFormat(24, bytes),
+        bin3=b.DataFormat(24),
         killer=b.STRING,
-        bin4=b.DataFormat(24, bytes),
+        bin4=b.DataFormat(24),
         killee=b.STRING,
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     ),
     UnitGainedTrait=dict(
         trait=b.STRING,
-        bin2=b.DataFormat(4, bytes),
+        bin2=b.DataFormat(4),
         unit=b.STRING
     ),
     UnitTransformed=dict(
         started_as=b.STRING,
-        unknown=b.DataFormat(4, bytes),
-        bin2=b.DataFormat(4, bytes)
+        unknown=b.DataFormat(4),
+        bin2=b.DataFormat(4)
     ),
     UnitTypeDiscovered=dict(
         bool=b.BOOL,
         unit=b.STRING,
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     ),
     UnitUsedActionOn=dict(
-        bin3=b.DataFormat(4, bytes),
+        bin3=b.DataFormat(4),
         action=b.STRING,
-        bin4=b.DataFormat(4, bytes),
+        bin4=b.DataFormat(4),
         user=b.STRING,
-        bin5=b.DataFormat(4, bytes),
+        bin5=b.DataFormat(4),
         target=b.STRING,
-        bin2=b.DataFormat(4, bytes)
+        bin2=b.DataFormat(4)
     )
 )
 
