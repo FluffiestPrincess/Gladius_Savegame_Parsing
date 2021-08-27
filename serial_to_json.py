@@ -1,13 +1,25 @@
 from bulk_reader_tools import *
 
 testing = True
-input_dir = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\unpacked saves"
-input_file = r"robots vs robots.bulk"
-input_path = os.path.join(input_dir, input_file)
+passes = [{}, {}, {}, {}, {}]  # The main data structure
+locations = [{}, {}, {}, {}, {}]  # Location within the bulk file of each interesting section
+
+# Used for testing
+input_path = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\unpacked saves" \
+             r"\Enslavers.bulk"
+
+# ====================================================================== #
+# ==== Get the name of the binary data file and open it for reading ==== #
+# ====================================================================== #
+
+if not testing:
+    parser = argparse.ArgumentParser(description="Deserializes the bulk files into native Python objects.")
+    parser.add_argument("filename")
+    args = parser.parse_args()
+    input_path = os.path.abspath(args.filename)
+
 json_output_path = os.path.splitext(input_path)[0] + ".json"
 
-passes = [{}, {}, {}, {}, {}]
-locations = [{}, {}, {}, {}, {}]
 binary = getfile(input_path)
 
 # ================================ #
@@ -49,6 +61,7 @@ for structure in [second_pass_structure, third_pass_structure, fourth_pass_struc
 # ID of the current active player
 passes[1]["current_player"] = binary.fpop(b.UINT)
 
+# Actions require special handling because of the weapon-actions issue
 locations[1]["actions"] = binary.tell()
 passes[1]["actions"] = []
 for action in passes[0]["actions"]:
@@ -94,21 +107,6 @@ for key in third_pass_structure:
     locations[2][key] = binary.tell()
     passes[2][key] = binary.fpop_structure(third_pass_structure[key])
 
-# locations[2]["traits"] = data.tell()
-# passes[2]["traits"] = data.fpop_structure([trait3_structure, len(passes[0]["traits"])])
-#
-# locations[2]["players"] = data.tell()
-# passes[2]["players"] = data.fpop_structure([order_structure, len(passes[0]["players"])])
-#
-# locations[2]["cities"] = data.tell()
-# passes[2]["cities"] = data.fpop_structure([order_structure, len(passes[0]["cities"])])
-#
-# locations[2]["building_groups"] = data.tell()
-# passes[2]["building_groups"] = data.fpop_structure([order_structure, len(passes[0]["building_groups"])])
-#
-# locations[2]["units"] = data.tell()
-# passes[2]["units"] = data.fpop_structure([order_structure, len(passes[0]["units"])])
-
 # Notifications again
 locations[2]["notifications"] = binary.tell()
 passes[2]["notifications"] = []
@@ -126,12 +124,6 @@ for notif in passes[0]["notifications"]:
 for key in fourth_pass_structure:
     locations[3][key] = binary.tell()
     passes[3][key] = binary.fpop_structure(fourth_pass_structure[key])
-
-# locations[3]["tiles"] = data.tell()
-# passes[3]["tiles"] = data.fpop_structure([tile4_structure, len(passes[0]["tiles"])])
-#
-# locations[3]["units"] = data.tell()
-# passes[3]["units"] = data.fpop_structure([unit4_structure, len(passes[0]["units"])])
 
 # Notifications *again*
 locations[3]["notifications"] = binary.tell()
