@@ -39,7 +39,7 @@ for key in first_pass_structure_1:
     locations[0][key] = binary.tell()
     passes[0][key] = binary.fpop_structure(first_pass_structure_1[key])
 
-# Events
+# Events - not implemented yet
 locations[0]["events"] = binary.tell()
 passes[0]["events"] = binary.fpop(b.UINT)
 if passes[0]["events"] != 0:
@@ -88,7 +88,7 @@ for structure in [second_pass_structure, third_pass_structure, fourth_pass_struc
 # ================================= #
 
 # ID of the current active player
-passes[1]["current_player"] = binary.fpop(b.UINT)
+passes[1]["world_params"] = {"current_player": binary.fpop(b.UINT)}
 
 # Actions require special handling because of the weapon-actions issue
 locations[1]["actions"] = binary.tell()
@@ -140,7 +140,7 @@ for key in third_pass_structure:
 
 # Notifications again
 locations[2]["notifications"] = binary.tell()
-passes[1]["notifications"] = [binary.fpop_structure(notification2_structures[notif["type"]])
+passes[2]["notifications"] = [binary.fpop_structure(notification2_structures[notif["type"]])
                               for notif in passes[0]["notifications"]]
 # passes[2]["notifications"] = []
 # for notif in passes[0]["notifications"]:
@@ -148,6 +148,9 @@ passes[1]["notifications"] = [binary.fpop_structure(notification2_structures[not
 #     extra = binary.fpop_structure(notification_suffixes[notif["type"]])
 #     notif3.update(extra)
 #     passes[2]["notifications"].append(notif3)
+
+# A dummy value because the tiles data skips a pass for some reason.
+passes[2]["tiles"] = [{} for tile in passes[0]["tiles"]]
 
 # ================================= #
 # ==== Fourth pass starts here ==== #
@@ -160,7 +163,7 @@ for key in fourth_pass_structure:
 
 # Notifications *again*
 locations[3]["notifications"] = binary.tell()
-passes[1]["notifications"] = [binary.fpop_structure(notification2_structures[notif["type"]])
+passes[3]["notifications"] = [binary.fpop_structure(notification2_structures[notif["type"]])
                               for notif in passes[0]["notifications"]]
 # passes[3]["notifications"] = []
 # for notif in passes[0]["notifications"]:
@@ -175,7 +178,7 @@ passes[1]["notifications"] = [binary.fpop_structure(notification2_structures[not
 
 # Seems to be just notifications for a fifth and final time
 locations[4]["notifications"] = binary.tell()
-passes[1]["notifications"] = [binary.fpop_structure(notification2_structures[notif["type"]])
+passes[4]["notifications"] = [binary.fpop_structure(notification2_structures[notif["type"]])
                               for notif in passes[0]["notifications"]]
 # passes[4]["notifications"] = []
 # for notif in passes[0]["notifications"]:
@@ -184,14 +187,42 @@ passes[1]["notifications"] = [binary.fpop_structure(notification2_structures[not
 #     notif5.update(extra)
 #     passes[4]["notifications"].append(notif5)
 
+# ============================= #
+# ==== Rearrange by passes ==== #
+# ============================== #
+
+zippable = ["actions", "traits", "players", "tiles", "features", "cities", "building_groups", "buildings",
+            "units", "weapons", "magic_items"]
+
+rearranged = ((section_key, [section_content
+                             for _pass1 in passes
+                             for key, section_content in _pass1.items()
+                             if key == section_key])
+              for _pass in passes
+              for section_key in _pass.keys())
+
+zipped = ((key,
+           list(zip(*value))
+           if (key in zippable)
+           else value
+           )
+          for key, value in rearranged)
+
 # =================================== #
 # ==== Cleanup and testing tools ==== #
 # =================================== #
 
-if testing:
-    print("Position in file as of end of reading:")
-    print(binary.tell())
 if not testing:
     binary.close()
-    with open(json_output_path, 'w') as input_path:
-        json.dump(passes, input_path, cls=b.BytesJSONEncoder, indent="    ")
+
+if testing:
+    lengths = {key: trylen(passes[0][key]) for key in passes[0]}
+    print("Found...")
+    for key in passes[0]:
+        print(f"{lengths[key]} {key}")
+
+print("Position in file as of end of reading:")
+print(binary.tell())
+
+with open(json_output_path, 'w') as input_path:
+    json.dump(dict(zipped), input_path, cls=b.BytesJSONEncoder, indent="    ")

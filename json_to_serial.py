@@ -4,15 +4,16 @@ import json
 from bulk_reader_tools import *
 
 testing = True
+passes = [{}, {}, {}, {}, {}]
 locations = [{}, {}, {}, {}, {}]  # Location within the bulk file of each interesting section
 
 # Used for testing
 input_path = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\unpacked saves" \
              r"\Enslavers.json"
 
-# ====================================================================== #
-# ==== Get the name of the binary data file and open it for reading ==== #
-# ====================================================================== #
+# ==================================================================== #
+# ==== Get the name of the json data file and open it for reading ==== #
+# ==================================================================== #
 
 if not testing:
     parser = argparse.ArgumentParser(description="Serializes json files into the binary component of a Gladius saved "
@@ -26,11 +27,31 @@ serial_output_path = os.path.splitext(input_path)[0] + ".bin"
 print(f"Serializing {os.path.basename(input_path)}")
 
 with open(input_path, "r") as file:
-    passes = json.load(file, object_hook=b.bytes_object_hook)
+    consolidated_data = json.load(file, object_hook=b.bytes_object_hook)
 
 raw = open(serial_output_path, 'wb', buffering=0)
 # noinspection PyTypeChecker
 binary = b.BinWriter(raw)
+
+# ============================== #
+# ==== Separate into passes ==== #
+# ============================== #
+
+zipped_keys = ["actions", "traits", "players", "tiles", "features", "cities", "building_groups", "buildings",
+               "units", "weapons", "magic_items"]
+
+unzipped_data = {key: (list(zip(*value))
+                       if (key in zipped_keys)
+                       else value)
+                 for key, value in consolidated_data.items()}
+
+for n in range(len(passes)):
+    print(n)
+    passes[n] = {key: value[n] for key, value in unzipped_data.items() if len(value) > n}
+
+if not testing:
+    del unzipped_data
+    del consolidated_data  # Save memory
 
 # ================================ #
 # ==== First pass starts here ==== #
@@ -70,7 +91,7 @@ binary.translate(len(passes[0]["notifications"]), b.UINT)
 # ================================= #
 
 # ID of the current active player
-binary.translate(passes[1]["current_player"], b.UINT)
+binary.translate(passes[1]["world_params"]["current_player"], b.UINT)
 
 # Actions require special handling because of the weapon-actions issue
 locations[1]["actions"] = binary.tell()
