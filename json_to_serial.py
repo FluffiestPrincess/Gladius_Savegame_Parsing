@@ -1,28 +1,38 @@
 import argparse
 import os
 import json
+import configparser
 from bulk_reader_tools import *
 
 testing = True
+master_config_name = "Config.ini"
+test_file_name = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\unpacked saves" \
+                 r"\Enslavers.json"
+
+config = configparser.ConfigParser(allow_no_value=True)
+# Default behaviour is to make all config option names lowercase
+# We don't want to do that so we override optionxform
+config.optionxform = lambda option: option
+config.read(master_config_name)
+
 passes = [{}, {}, {}, {}, {}]
 locations = [{}, {}, {}, {}, {}]  # Location within the bulk file of each interesting section
-
-# Used for testing
-input_path = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\unpacked saves" \
-             r"\Enslavers.json"
 
 # ==================================================================== #
 # ==== Get the name of the json data file and open it for reading ==== #
 # ==================================================================== #
 
-if not testing:
+if testing:
+    input_path = test_file_name
+else:
     parser = argparse.ArgumentParser(description="Serializes json files into the binary component of a Gladius saved "
                                                  "game.")
     parser.add_argument("filename")
     args = parser.parse_args()
     input_path = os.path.abspath(args.filename)
 
-serial_output_path = os.path.splitext(input_path)[0] + ".bin"
+serial_output_path = os.path.splitext(input_path)[0] + "_2.bin"
+config_output_path = os.path.splitext(input_path)[0] + "_2.ini"
 
 print(f"Serializing {os.path.basename(input_path)}")
 
@@ -32,6 +42,36 @@ with open(input_path, "r") as file:
 raw = open(serial_output_path, 'wb', buffering=0)
 # noinspection PyTypeChecker
 binary = b.BinWriter(raw)
+
+# ====================================================== #
+# ==== Save some data to the ini file for use later ==== #
+# ====================================================== #
+
+config_out = configparser.ConfigParser(allow_no_value=True)
+
+# Default behaviour is to make all config option names lowercase
+# We don't want to do that so we override optionxform
+config_out.optionxform = lambda option: option
+config_out.add_section("HEADER")
+config_out.add_section("MODS")
+
+# These values are stored in the master config file
+for value in ["version", "branch", "revision", "build"]:
+    config_out["HEADER"][value] = config["GLADIUS"][value]
+
+current_player_id = consolidated_data["world_params"][1]["current_player"]
+
+config_out["HEADER"]["steamuser"] = consolidated_data["players"][current_player_id][0]["name"]
+config_out["HEADER"]["turn"] = str(consolidated_data["world_params"][0]["turn_number"])
+config_out["HEADER"]["checksum"] = "0"
+config_out["HEADER"]["mod_count"] = str(len(consolidated_data["world_params"][0]["mods"]))
+
+for mod in consolidated_data["world_params"][0]["mods"]:
+    # noinspection PyTypeChecker
+    config_out["MODS"][mod] = None
+
+with open(config_output_path, 'w') as file:
+    config_out.write(file)
 
 # ============================== #
 # ==== Separate into passes ==== #
@@ -46,7 +86,6 @@ unzipped_data = {key: (list(zip(*value))
                  for key, value in consolidated_data.items()}
 
 for n in range(len(passes)):
-    print(n)
     passes[n] = {key: value[n] for key, value in unzipped_data.items() if len(value) > n}
 
 if not testing:

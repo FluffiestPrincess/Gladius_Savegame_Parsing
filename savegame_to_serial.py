@@ -4,22 +4,23 @@ import sys
 import configparser
 import zlib
 from mmap import ACCESS_READ
+from bulk_reader_tools import header_structure
 import binarizer as b
 
-testing = False
-unpack_dir_name = "unpacked saves"
+testing = True
+master_config_name = "Config.ini"
+test_file_name = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\Enslavers.GladiusSave"
 
-header_structure = dict(version=b.STRING,
-                        branch=b.STRING,
-                        revision=b.STRING,
-                        build=b.STRING,
-                        steamuser=b.STRING,
-                        turn=b.INT,
-                        checksum=b.INT,
-                        mod_count=b.INT)
+config = configparser.ConfigParser(allow_no_value=True)
+# Default behaviour is to make all config option names lowercase
+# We don't want to do that so we override optionxform
+config.optionxform = lambda option: option
+config.read(master_config_name)
+
+unpack_dir_name = config["GLADIUS"]["unpacked directory"]
 
 if testing:
-    file_in_name = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\test.GladiusSave"
+    file_in_name = test_file_name
 else:
     parser = argparse.ArgumentParser(description="Decompress Gladius saved games.")
     parser.add_argument("filename")
@@ -40,17 +41,17 @@ elif os.path.isdir(directory):
     pass
 else:
     os.mkdir(directory)
-config_out_name = os.path.join(directory, name + ".cfg")
-bulk_out_name = os.path.join(directory, name + ".bulk")
+config_output_path = os.path.join(directory, name + ".ini")
+binary_output_path = os.path.join(directory, name + ".bin")
 
-config = configparser.ConfigParser(allow_no_value=True)
+config_out = configparser.ConfigParser(allow_no_value=True)
 
 # Default behaviour is to make all config option names lowercase
 # We don't want to do that so we override optionxform
-config.optionxform = lambda option: option
-config.add_section("HEADER")
-config.add_section("MODS")
-header = config["HEADER"]
+config_out.optionxform = lambda option: option
+config_out.add_section("HEADER")
+config_out.add_section("MODS")
+header = config_out["HEADER"]
 
 with open(file_in_name, 'r+b') as file:
     data = b.BinReader(file.fileno(), 0, access=ACCESS_READ)
@@ -62,16 +63,18 @@ for name in header_structure:
 # Mod names are separated by null bytes
 for n in range(int(header["mod_count"])):
     mod = data.fpop(*b.STRING)
-    config["MODS"][mod] = None
+    # noinspection PyTypeChecker
+    config_out["MODS"][mod] = None
 
-with open(config_out_name, 'w') as file:
-    config.write(file)
+with open(config_output_path, 'w') as file:
+    config_out.write(file)
 
 # Remainder of file is compressed with zlib
 remainder = len(data) - data.tell()
 decompressed_data = zlib.decompress(data.get(remainder))
 
-with open(bulk_out_name, 'wb') as file:
+with open(binary_output_path, 'wb') as file:
     file.write(decompressed_data)
+    print(f"Decompressed savegame data written to {unpack_dir_name}.")
 
 data.close()

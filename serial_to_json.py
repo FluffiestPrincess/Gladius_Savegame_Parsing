@@ -2,21 +2,30 @@ import json
 import argparse
 import os
 import re
+import configparser
 from bulk_reader_tools import *
 
 testing = True
+master_config_name = "Config.ini"
+test_file_name = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\unpacked saves" \
+             r"\Enslavers.bin"
+
+config = configparser.ConfigParser(allow_no_value=True)
+# Default behaviour is to make all config option names lowercase
+# We don't want to do that so we override optionxform
+config.optionxform = lambda option: option
+config.read(master_config_name)
+
 passes = [{}, {}, {}, {}, {}]  # The main data structure
 locations = [{}, {}, {}, {}, {}]  # Location within the bulk file of each interesting section
-
-# Used for testing
-input_path = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\unpacked saves" \
-             r"\Rhana Dandra.bulk"
 
 # ====================================================================== #
 # ==== Get the name of the binary data file and open it for reading ==== #
 # ====================================================================== #
 
-if not testing:
+if testing:
+    input_path = test_file_name
+else:
     parser = argparse.ArgumentParser(description="Deserializes the bulk files into native Python objects.")
     parser.add_argument("filename")
     args = parser.parse_args()
