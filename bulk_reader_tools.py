@@ -443,22 +443,26 @@ quest_structure = dict(
 )
 
 # No analysis needed
-notification_base_structure = dict(
+notification_prefix = dict(
     type=b.STRING,
     number=b.UINT,
     player=b.UINT,
     bin1=b.DataFormat(3)
 )
 
+notification2_prefix = dict(
+    bin1=b.DataFormat(7)
+)
+
 # I *think* bin2 is the tile the notification is tied to.
 # Again, this is of basically no importance because there are no notifications at game start.
-notification_types = dict(
+notification_suffixes = dict(
     CityGrown=dict(
         city=b.STRING,
         details=b.STRING,
         bin2=b.DataFormat(4)
     ),
-    FactionDefeated=None,  # TODO: Make a save file after surrendering
+    # FactionDefeated=None,  # TODO: Make a save file after surrendering
     FactionDiscovered=dict(
         faction=b.UINT,
         bin2=b.DataFormat(4)
@@ -472,12 +476,18 @@ notification_types = dict(
         feature=b.STRING,
         bin2=b.DataFormat(4)
     ),
-    LordOfSkullsAppeared=None,  # I don't have this DLC and can't easily test
-    LordOfSkullsDisppeared=None,
-    PlayerLost=b.DataFormat(0, None),  # This is a no-op
-    PlayerWon=None,  # I'm pretty sure PlayerWonElimination and PlayerWonQuest are used instead
-    PlayerWonElimination=b.DataFormat(0, None),  # This is a no-op
-    PlayerWonQuest=b.DataFormat(0, None),  # This is a no-op
+    # LordOfSkullsAppeared=None,  # I don't have this DLC and can't easily test
+    # LordOfSkullsDisppeared=None,
+    PlayerLost=dict(
+        null=b.DataFormat(0, None)  # This is a no-op
+    ),
+    # PlayerWon=None,  # I'm pretty sure PlayerWonElimination and PlayerWonQuest are used instead
+    PlayerWonElimination=dict(
+        null=b.DataFormat(0, None)  # This is a no-op
+    ),
+    PlayerWonQuest=dict(
+        null=b.DataFormat(0, None)  # This is a no-op
+    ),
     ProductionCompleted=dict(
         produced=b.STRING,
         city=b.STRING,
@@ -566,6 +576,10 @@ notification_types = dict(
         bin2=b.DataFormat(4)
     )
 )
+
+notification_structures = {key: dict(**notification_prefix, **value) for key, value in notification_suffixes.items()}
+
+notification2_structures = {key: dict(**notification2_prefix, **value) for key, value in notification_suffixes.items()}
 
 # Only relevant for parsing files with quest data in them - this is used as part of the regexp that skips over
 # trying to skip over the quest data and its lack of length indicators

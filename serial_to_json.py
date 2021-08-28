@@ -35,7 +35,6 @@ with open(input_path, 'rb') as input_path:
 # ================================ #
 
 # world parameters, climates
-
 for key in first_pass_structure_1:
     locations[0][key] = binary.tell()
     passes[0][key] = binary.fpop_structure(first_pass_structure_1[key])
@@ -57,7 +56,6 @@ for n in range(action_count):
     passes[0]["actions"].append(action)
 
 # Traits, players, tiles, features, cities, buildingGroups, buildings, units, weapons, items, quests.
-
 for key in first_pass_structure_2:
     locations[0][key] = binary.tell()
     passes[0][key] = binary.fpop_structure(first_pass_structure_2[key])
@@ -68,11 +66,8 @@ locations[0]["notifications"] = binary.tell()
 notification_count = binary.fpop(b.UINT)
 passes[0]["notifications"] = []
 for n in range(notification_count):
-    notif = dict(type=binary.fpop(b.STRING),
-                 number=binary.fpop(b.UINT),
-                 player=binary.fpop(b.UINT),
-                 bin1=binary.fpop(3))
-    extra = binary.fpop_structure(notification_types[notif["type"]])
+    notif = binary.fpop_structure(notification_prefix)
+    extra = binary.fpop_structure(notification_suffixes[notif["type"]])
     notif.update(extra)
     passes[0]["notifications"].append(notif)
 
@@ -124,13 +119,15 @@ else:
 
 # Notifications
 locations[1]["notifications"] = binary.tell()
-passes[1]["notifications"] = []
-
-for notif in passes[0]["notifications"]:
-    notif2 = dict(bin1=binary.fpop(7, bytes))
-    extra = binary.fpop_structure(notification_types[notif["type"]])
-    notif2.update(extra)
-    passes[1]["notifications"].append(notif2)
+passes[1]["notifications"] = [binary.fpop_structure(notification2_structures[notif["type"]])
+                              for notif in passes[0]["notifications"]]
+# passes[1]["notifications"] = []
+#
+# for notif in passes[0]["notifications"]:
+#     notif2 = dict(bin1=binary.fpop(7, bytes))
+#     extra = binary.fpop_structure(notification_suffixes[notif["type"]])
+#     notif2.update(extra)
+#     passes[1]["notifications"].append(notif2)
 
 # ================================ #
 # ==== Third pass starts here ==== #
@@ -143,12 +140,14 @@ for key in third_pass_structure:
 
 # Notifications again
 locations[2]["notifications"] = binary.tell()
-passes[2]["notifications"] = []
-for notif in passes[0]["notifications"]:
-    notif3 = dict(bin1=binary.fpop(7, bytes))
-    extra = binary.fpop_structure(notification_types[notif["type"]])
-    notif3.update(extra)
-    passes[2]["notifications"].append(notif3)
+passes[1]["notifications"] = [binary.fpop_structure(notification2_structures[notif["type"]])
+                              for notif in passes[0]["notifications"]]
+# passes[2]["notifications"] = []
+# for notif in passes[0]["notifications"]:
+#     notif3 = dict(bin1=binary.fpop(7, bytes))
+#     extra = binary.fpop_structure(notification_suffixes[notif["type"]])
+#     notif3.update(extra)
+#     passes[2]["notifications"].append(notif3)
 
 # ================================= #
 # ==== Fourth pass starts here ==== #
@@ -161,12 +160,14 @@ for key in fourth_pass_structure:
 
 # Notifications *again*
 locations[3]["notifications"] = binary.tell()
-passes[3]["notifications"] = []
-for notif in passes[0]["notifications"]:
-    notif4 = dict(bin1=binary.fpop(7, bytes))
-    extra = binary.fpop_structure(notification_types[notif["type"]])
-    notif4.update(extra)
-    passes[3]["notifications"].append(notif4)
+passes[1]["notifications"] = [binary.fpop_structure(notification2_structures[notif["type"]])
+                              for notif in passes[0]["notifications"]]
+# passes[3]["notifications"] = []
+# for notif in passes[0]["notifications"]:
+#     notif4 = dict(bin1=binary.fpop(7, bytes))
+#     extra = binary.fpop_structure(notification_suffixes[notif["type"]])
+#     notif4.update(extra)
+#     passes[3]["notifications"].append(notif4)
 
 # ================================ #
 # ==== Fifth pass starts here ==== #
@@ -174,12 +175,14 @@ for notif in passes[0]["notifications"]:
 
 # Seems to be just notifications for a fifth and final time
 locations[4]["notifications"] = binary.tell()
-passes[4]["notifications"] = []
-for notif in passes[0]["notifications"]:
-    notif5 = dict(bin1=binary.fpop(7, bytes))
-    extra = binary.fpop_structure(notification_types[notif["type"]])
-    notif5.update(extra)
-    passes[4]["notifications"].append(notif5)
+passes[1]["notifications"] = [binary.fpop_structure(notification2_structures[notif["type"]])
+                              for notif in passes[0]["notifications"]]
+# passes[4]["notifications"] = []
+# for notif in passes[0]["notifications"]:
+#     notif5 = dict(bin1=binary.fpop(7, bytes))
+#     extra = binary.fpop_structure(notification_suffixes[notif["type"]])
+#     notif5.update(extra)
+#     passes[4]["notifications"].append(notif5)
 
 # =================================== #
 # ==== Cleanup and testing tools ==== #
