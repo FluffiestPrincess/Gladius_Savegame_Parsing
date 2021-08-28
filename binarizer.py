@@ -7,6 +7,7 @@ import mmap
 import os
 import re
 import json
+import io
 
 
 def pretty_hex(b):
@@ -19,6 +20,16 @@ def pretty_binary(b):
     binary = ['{:0>8}'.format(string) for string in binary]  # Pad to 8 digits per block
     binary = " ".join(binary)
     return binary
+
+
+def bytes_object_hook(d):
+    """
+    Used as object_hook in json.load to convert the pretty hex objects - like {"bytes": "12 20"} back into bytes.
+    """
+    if list(d.keys()) == ["bytes"]:
+        return bytes.fromhex(d["bytes"])
+    else:
+        return d
 
 
 class BytesJSONEncoder(json.JSONEncoder):
@@ -78,7 +89,7 @@ ULLONG = DataFormat(8, "Q")
 FLOAT = DataFormat(4, "f")
 DOUBLE = DataFormat(8, "d")
 BOOL = DataFormat(1, "?")
-STRING = DataFormat(b"\x00", lambda x: x.decode())
+STRING = DataFormat(b"\x00", lambda x: x.decode(), lambda x: bytes(x, "UTF-8")+b'\x00')
 
 # Non-zero-length string, used until I realized it was almost certainly an error.
 # NZ_STRING = DataFormat(b"\x00", lambda x: x.decode(), lambda x: bytes(x, "UTF-8")+b'\x00' allow_zero_length=False)
@@ -241,3 +252,59 @@ class BinReader(mmap.mmap):
         else:
             # Anything else is probably an iterable.
             return [self.fpop_structure(substructure) for substructure in structure]
+
+
+class BinWriter(io.BufferedWriter):
+
+    def translate(self, data, translator):
+        if callable(translator):
+            self.write(translator(data))
+        elif isinstance(translator, str):
+            self.write(struct.pack(translator, data))
+        elif isinstance(translator, DataFormat):
+            # Unpack and recurse
+            self.translate(data, translator.to_bytes)
+        elif translator is None:
+            self.write(data)
+        else:
+            raise TypeError("Currently only supports formatting inputs with callable functions or with a string that "
+                            "is passed as a pattern to struct.pack.")
+
+    def write_structure(self, data_structure, spec_structure):
+        if isinstance(spec_structure, DataFormat):
+            self.translate(data_structure, spec_structure)
+
+        # elif callable(spec_structure):
+        #     self.write_structure(data_structure, spec_structure(data_structure, self))
+
+        elif isinstance(spec_structure, list) and len(spec_structure) == 1:
+            # This is just shorthand for [substructure, UINT]
+            self.write_structure(data_structure, [spec_structure[0], UINT])
+
+        elif isinstance(spec_structure, list) and len(spec_structure) == 2:
+            if isinstance(spec_structure[1], int) or spec_structure[1] is None:
+                # Fixed length implies no length indicator
+                pass
+            elif isinstance(spec_structure[1], DataFormat):
+                # Write a length indicator, then the list
+                self.translate(len(data_structure), spec_structure[1])
+            else:
+                raise TypeError(f"Second element in list must by int, DataFormat, or None, not "
+                                f"{type(spec_structure[1])}")
+
+            for data_instance in data_structure:
+                self.write_structure(data_instance, spec_structure[0])
+
+        elif isinstance(spec_structure, list):
+            raise ValueError("Length of list must be 1 or 2.")
+
+        elif isinstance(spec_structure, tuple):
+            for data_instance, spec_instance in zip(data_structure, spec_structure):
+                self.write_structure(data_instance, spec_instance)
+
+        elif isinstance(spec_structure, dict):
+            for data_instance, spec_instance in zip(data_structure.values(), spec_structure.values()):
+                self.write_structure(data_instance, spec_instance)
+
+        else:
+            raise TypeError(f"write_structure does not know how to handle {type(spec_structure)}")
