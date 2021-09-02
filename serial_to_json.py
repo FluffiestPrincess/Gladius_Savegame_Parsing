@@ -225,6 +225,7 @@ if not testing:
     binary.close()
 
 if testing:
+    zipped = dict(zipped)
     lengths = {key: trylen(passes[0][key]) for key in passes[0]}
     print("Found...")
     for key in passes[0]:
@@ -233,5 +234,5 @@ if testing:
 print("Position in file as of end of reading:")
 print(binary.tell())
 
-with open(json_output_path, 'w') as input_path:
-    json.dump(dict(zipped), input_path, cls=b.BytesJSONEncoder, indent="    ")
+with open(json_output_path, 'w') as file:
+    json.dump(dict(zipped), file, cls=b.BytesJSONEncoder, indent="    ")
