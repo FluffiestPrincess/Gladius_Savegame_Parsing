@@ -219,11 +219,12 @@ player_structure = dict(
     name=b.STRING,
     faction=b.STRING,
     is_AI=b.BOOL,
-    bin7=b.DataFormat(38),  # Unknown purpose
-    colour=b.STRING,
+    bin7=b.DataFormat(22),  # Unknown purpose
+    colour=(b.FLOAT, b.FLOAT, b.FLOAT, b.FLOAT),
+    colour_name=b.STRING,
     bin8=b.DataFormat(9),  # Unknown purpose
     features_seen=[b.STRING],
-    items8=[b.STRING],  # Unknown purpose
+    units_seen=[b.STRING],
     DLCs=[b.STRING],
     bin9=b.DataFormat(8),  # Unknown purpose
     double1=b.DOUBLE,  # Unknown purpose
@@ -252,7 +253,7 @@ player2_structure = dict(
     quests_in_progress=[b.UINT],
     quests_completed=[b.UINT],
     blank1=b.DWORD,
-    bin11=b.DWORD,
+    spawn_tile=b.DWORD,
     tiles_revealed=[b.UINT],
     numbers2=[b.INT],
     tiles_watched=[b.INT],
@@ -649,6 +650,7 @@ second_pass_structure = dict(
     units=[unit2_structure, None],
     weapons=[weapon2_structure, None],
     magic_items=[[b.INT], None]
+    # Quests is a special case
     # Notifications is a special case
 )
 
