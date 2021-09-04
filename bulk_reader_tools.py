@@ -247,7 +247,7 @@ player_structure = dict(
 
 player2_structure = dict(
     actions=[b.INT],
-    global_effects=[{"name": b.STRING, "number": b.INT}],
+    global_traits=[{"name": b.STRING, "id": b.INT}],
     F=b.DWORD,
     player_id_again=b.UINT,
     quests_in_progress=[b.UINT],
@@ -423,8 +423,12 @@ weapon2_structure = dict(
 
 # No analysis needed
 magic_item_structure = dict(
-    id=b.DataFormat(4),
+    id=b.UINT,
     name=b.STRING
+)
+
+magic_item2_structure = dict(
+    actions=[b.INT]
 )
 
 # Either the string "Factions/" (start of the next quest)
@@ -649,7 +653,7 @@ second_pass_structure = dict(
     buildings=[building2_structure, None],
     units=[unit2_structure, None],
     weapons=[weapon2_structure, None],
-    magic_items=[[b.INT], None]
+    magic_items=[magic_item2_structure, None]
     # Quests is a special case
     # Notifications is a special case
 )
