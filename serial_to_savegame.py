@@ -4,16 +4,19 @@ import configparser
 import struct
 import zlib
 
-testing = True
+testing = False
 master_config_name = "Config.ini"
+
+# Used for testing only
 test_file_name = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\unpacked saves" \
                  r"\Enslavers_2.bin"
 
-config = configparser.ConfigParser(allow_no_value=True)
+# Configuration file currently not used
+# config = configparser.ConfigParser(allow_no_value=True)
 # Default behaviour is to make all config option names lowercase
 # We don't want to do that so we override optionxform
-config.optionxform = lambda option: option
-config.read(master_config_name)
+# config.optionxform = lambda option: option
+# config.read(master_config_name)
 
 
 if testing:

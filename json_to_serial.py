@@ -4,8 +4,10 @@ import json
 import configparser
 from bulk_reader_tools import *
 
-testing = True
+testing = False
 master_config_name = "Config.ini"
+
+# Only used for testing purposes
 test_file_name = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\unpacked saves" \
                  r"\Enslavers.json"
 
@@ -59,6 +61,7 @@ config_out.add_section("MODS")
 for value in ["version", "branch", "revision", "build"]:
     config_out["HEADER"][value] = config["GLADIUS"][value]
 
+# These values are taken from the json data
 current_player_id = consolidated_data["world_params"][1]["current_player"]
 
 config_out["HEADER"]["steamuser"] = consolidated_data["players"][current_player_id][0]["name"]
@@ -78,12 +81,23 @@ with open(config_output_path, 'w') as file:
 # ============================== #
 
 zipped_keys = ["actions", "traits", "players", "tiles", "features", "cities", "building_groups", "buildings",
-               "units", "weapons", "magic_items"]
+               "units", "weapons", "magic_items", "notifications"]
 
-unzipped_data = {key: (list(zip(*value))
-                       if (key in zipped_keys)
-                       else value)
-                 for key, value in consolidated_data.items()}
+# Removed due to being hard to read
+# unzipped_data = {key: (list(zip(*value))
+#                        if (key in zipped_keys)
+#                        else value)
+#                  for key, value in consolidated_data.items()}
+
+unzipped_data = {}
+
+for key, value in consolidated_data.items():
+    if key in zipped_keys:
+        unzipped_data[key] = list(zip(*value))
+        # Pad list to length 5
+        unzipped_data[key] += [[]] * (5 - len(unzipped_data[key]))
+    else:
+        unzipped_data[key] = value
 
 for n in range(len(passes)):
     passes[n] = {key: value[n] for key, value in unzipped_data.items() if len(value) > n}

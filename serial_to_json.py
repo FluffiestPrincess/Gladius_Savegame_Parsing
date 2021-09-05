@@ -2,19 +2,22 @@ import json
 import argparse
 import os
 import re
-import configparser
+# import configparser
 from bulk_reader_tools import *
 
 testing = True
 master_config_name = "Config.ini"
+
+# Used for testing only
 test_file_name = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\unpacked saves" \
              r"\Enslavers.bin"
 
-config = configparser.ConfigParser(allow_no_value=True)
+# Configuration file currently not used
+# config = configparser.ConfigParser(allow_no_value=True)
 # Default behaviour is to make all config option names lowercase
 # We don't want to do that so we override optionxform
-config.optionxform = lambda option: option
-config.read(master_config_name)
+# config.optionxform = lambda option: option
+# config.read(master_config_name)
 
 passes = [{}, {}, {}, {}, {}]  # The main data structure
 locations = [{}, {}, {}, {}, {}]  # Location within the bulk file of each interesting section
@@ -201,31 +204,32 @@ passes[4]["notifications"] = [binary.fpop_structure(notification2_structures[not
 # ============================== #
 
 zippable = ["actions", "traits", "players", "tiles", "features", "cities", "building_groups", "buildings",
-            "units", "weapons", "magic_items"]
+            "units", "weapons", "magic_items", "notifications"]
 
-rearranged = ((section_key, [section_content
-                             for _pass1 in passes
-                             for key, section_content in _pass1.items()
-                             if key == section_key])
-              for _pass in passes
-              for section_key in _pass.keys())
+rearranged = {}
+# from [{"actions": pass1_actions, "traits": pass1_traits}, {"actions": pass2_actions, "traits": pass2_traits}]
+# to {"actions": [pass1_actions, pass2_actions] "traits": [pass1_traits, pass2_traits]}
+for section_title in passes[0].keys():
+    rearranged[section_title] = []
+    for eachPass in passes:
+        try:
+            rearranged[section_title].append(eachPass[section_title])
+        except KeyError:
+            pass
 
-zipped = ((key,
-           list(zip(*value))
-           if (key in zippable)
-           else value
-           )
-          for key, value in rearranged)
+zipped = {}
+
+for section_title, section in rearranged.items():
+    if section_title in zippable:
+        zipped[section_title] = list(zip(*section))
+    else:
+        zipped[section_title] = section
 
 # =================================== #
 # ==== Cleanup and testing tools ==== #
 # =================================== #
 
-if not testing:
-    binary.close()
-
 if testing:
-    zipped = dict(zipped)
     lengths = {key: trylen(passes[0][key]) for key in passes[0]}
     print("Found...")
     for key in passes[0]:
@@ -235,4 +239,7 @@ print("Position in file as of end of reading:")
 print(binary.tell())
 
 with open(json_output_path, 'w') as file:
-    json.dump(dict(zipped), file, cls=b.BytesJSONEncoder, indent="    ")
+    json.dump(zipped, file, cls=b.BytesJSONEncoder, indent="    ")
+
+if not testing:
+    binary.close()

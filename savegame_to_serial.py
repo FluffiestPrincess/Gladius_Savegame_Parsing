@@ -7,8 +7,10 @@ from mmap import ACCESS_READ
 from bulk_reader_tools import header_structure
 import binarizer as b
 
-testing = True
+testing = False
 master_config_name = "Config.ini"
+
+# Used for testing only
 test_file_name = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\Enslavers.GladiusSave"
 
 config = configparser.ConfigParser(allow_no_value=True)
@@ -77,4 +79,5 @@ with open(binary_output_path, 'wb') as file:
     file.write(decompressed_data)
     print(f"Decompressed savegame data written to {unpack_dir_name}.")
 
-data.close()
+if not testing:
+    data.close()
