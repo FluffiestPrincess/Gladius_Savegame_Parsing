@@ -44,7 +44,7 @@ with open(file_in_name, 'rb') as file:
 # Null byte used as a separator
 nul = b"\x00"
 
-mods = [bytes(s, encoding="utf-8") for s in config_in["MODS"]]
+mods = [bytes(s, encoding="utf-8")+nul for s in config_in["MODS"]]
 
 data = b''.join([
     bytes(header["version"], encoding="utf-8"),
@@ -61,8 +61,7 @@ data = b''.join([
                 int(header["turn"]),
                 int(header["checksum"]),  # Not actually used so don't sweat it
                 len(mods)),     # Note: Use the *actual* number of mods, not whatever the config file says
-    nul.join(mods),
-    nul,
+    b''.join(mods),
     zlib.compress(binary_data)])
 
 with open(save_out_name, 'wb') as file:
