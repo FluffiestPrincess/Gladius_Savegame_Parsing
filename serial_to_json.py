@@ -5,12 +5,12 @@ import re
 # import configparser
 from bulk_reader_tools import *
 
-testing = True
+testing = False
 master_config_name = "Config.ini"
 
 # Used for testing only
 test_file_name = r"C:\Users\rosa\Documents\Proxy Studios\Gladius\SavedGames\SinglePlayer\unpacked saves" \
-             r"\Enslavers.bin"
+             r"\all factions.bin"
 
 # Configuration file currently not used
 # config = configparser.ConfigParser(allow_no_value=True)
